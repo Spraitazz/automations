@@ -2,7 +2,7 @@
 
 llm_server/llm_ggufs/
 
-**/logs/**
+**/logs/*
 
 
 # Byte-compiled / optimized / DLL files
