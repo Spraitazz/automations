@@ -4,7 +4,7 @@ from definitions import *
 from automation import Automation, WebAutomation
 
 from skelbiu.run import run as run_skelbiu
-
+from spires.run import run as run_spires
 #
 # IMPORTANT: see example config file provided in configs/skelbiu_example.ini
 # you might have the # character in your password, in which case in the
@@ -21,8 +21,6 @@ skelbiu_automation = {
     "with_xvfb": True,
     "run_on_startup": False,
 }
-
-from spires.run import run as run_spires
 
 spires_automation = {
     "class": WebAutomation,

@@ -1,0 +1,9 @@
+
+
+
+after have deploy version of files in ~/automations
+and created ~/automation_configs/{skelbiu,spires}
+(and ssh + autologin set up)
+--------------------------------------------------
+
+conda env create -f environment.yml
