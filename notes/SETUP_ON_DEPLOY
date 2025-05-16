@@ -6,4 +6,11 @@ and created ~/automation_configs/{skelbiu,spires}
 (and ssh + autologin set up)
 --------------------------------------------------
 
+sudo apt install xvfb
+
 conda env create -f environment.yml
+
+mkdir logs
+mkdir logs/controller
+
+./setup.sh

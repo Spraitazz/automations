@@ -1,15 +1,13 @@
 import os
-import configparser
 from pathlib import Path
-import threading
-import typing
-
-# from dataclasses import dataclass
-from enum import IntEnum
-import time
-import asyncio
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import threading
+import typing
+from enum import IntEnum
+import configparser
+import time
+import asyncio
 import uvicorn
 import smtplib
 from email.mime.text import MIMEText
@@ -31,7 +29,8 @@ if SOCKET_PATH is None:
 
 controller_log_dir_abspath = os.path.join(BASE_DIR, "logs", "controller")
 CONTROLLER_LOG_PATH = os.path.join(controller_log_dir_abspath, "log")
-
+if not os.path.exists(CONTROLLER_LOG_PATH):
+    os.makedirs(CONTROLLER_LOG_PATH)
 
 # set browser options
 DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()
