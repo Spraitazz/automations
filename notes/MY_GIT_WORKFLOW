@@ -22,17 +22,27 @@ git switch working
 git switch -c deploy
 
 cp deployignore .gitignore
+git add .gitignore
 
 # Tell git to stop tracking all files
 git rm --cached -r . 
 # re-add only files not ignored by .gitignore
 git add . 
 
-mv definitions_deploy.py definitions.py
-mv controller_deploy.py controller.py
+cp definitions_deploy.py definitions.py
+cp controller_deploy.py controller.py
+rm -f definitions_deploy.py
+rm -f controller_deploy.py 
 
-#git commit -m "what here?"
+
 git commit --amend --no-edit
+
+[ON DEPLOY MACHINE]
+git switch -c temp
+[ON DEPLOY MACHINE]
+
+
+git push --force jovanis deploy
 
 
 -----------------------------------------------------
