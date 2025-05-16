@@ -11,6 +11,5 @@ sudo apt install xvfb
 conda env create -f environment.yml
 
 mkdir logs
-mkdir logs/controller
 
 ./setup.sh

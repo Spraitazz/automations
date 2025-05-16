@@ -14,11 +14,6 @@ branches:
 1. working: do all actual work here
 
 
-# Ignore all files inside any directory named "logs" (at any level)
-**/logs/**
-
-# But do not ignore the logs directories themselves
-!**/logs/
 
 ----------------------------------------------------
 publishing to remote (better version?)

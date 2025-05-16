@@ -1,4 +1,5 @@
 
+**/logs/**
 
 githubignore
 deployignore
@@ -8,17 +9,13 @@ conda_env_deploy.yml
 controller_deploy.py
 definitions_deploy.py
 
-spires/
-
-logs/*
+notes/ 
+scripts/
 
 llm_server/
 
+spires/
 linkedin/
-
-notes/ 
-
-scripts/
 
 selenium_IDE_projects/
 
