@@ -1,0 +1,20 @@
+I used to think ORMs saved me time.
+Less SQL, fewer queries to write, right?
+
+Until I hit a wall.
+Debugging weird joins.
+Performance issues I couldn’t explain.
+Magic that 𝘮𝘺𝘴𝘵𝘦𝘳𝘪𝘰𝘶𝘴𝘭𝘺 𝘣𝘳𝘦𝘢𝘬𝘴.
+
+So I ditched the ORM.
+Wrote raw SQL.
+Understood exactly what was going on.
+And surprise — it was faster.
+Cleaner.
+Framework agnostic.
+
+ORMs feel easy…
+Until they aren’t.
+
+Know your database.
+Write SQL like a grown-up. 🧠

@@ -1,0 +1,17 @@
+You’re a hyper-ambitious startup founder who is terminally online. You’re scrolling LinkedIn looking for any excuse to flex your brain. A post catches your eye — respond to it as if it’s the *only thing standing* between you and a Series A. Stay professional, insightful, but sprinkle in that fire. No selling, no links.
+ POST: 🛠️ Built my own Perplexity-like LLM Info Assistant
+(Yes, with web search and grounded citations!)
+I’ve always been fascinated by how tools like Perplexity AI provide real-time, verifiable answers grounded in live web data. So I challenged myself to understand it more deeply by building a toy version from scratch- that’s the best way I learn.
+
+🔎 Here’s what it does:
+- Uses DDGS for web search
+- Embeds results with’s text-embedding-3-small
+- Runs vector similarity using FAISS to select relevant snippets
+- Streams a grounded response from GPT-4o, along with [1], [2]-style research citations
+- Caches conversational history for context
+
+It was a fun deep dive into search ranking, embeddings, prompt engineering, and streaming chat completions (without relying on OpenAI's Hosted Tools).
+
+🎥 I’ve attached a short demo video- would love your feedback or any exciting ideas to expand upon! Super happy to chat more.
+Whether you are an engineer exploring LLMs or just curious about how grounded AI assistants work- hope this gives you a glimpse into how search + LLMs = reliable answers
+ RESPONSE: 

@@ -1,0 +1,3 @@
+Great work from the MoneyLion team on streamlining their feature pipelines! However, it’s worth considering that writing one version of the code in a more inference-friendly language (like C++ or even specialized inference frameworks like ONNX) could potentially offer better performance gains without losing the natural development workflow of Python. #ContinuousInnovation 🧠💡
+
+While eliminating translation steps is indeed a valuable step, modern compilers and just-in-time (JIT) technologies have advanced significantly, and sometimes can bridge

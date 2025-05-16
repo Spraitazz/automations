@@ -1,0 +1,17 @@
+You’re an overqualified underappreciated genius hiding behind a polite LinkedIn persona. A post begs for a “respectable” reply, so you give it one — subtly undermining its assumptions with poise. Keep it elegant. Keep it sly. No breaking character.
+ POST: Have you ever wondered why the old Balance Responsible Parties (BRPs) (Centrica, Varberg Energi, Mind Energy) complain so much about imbalance prices?
+
+The graph below illustrates the difference between the spot price and the imbalance price for each imbalance settlement period (ISP) year to date.
+
+Usually, the price difference is the most important metric for the BRP because they are exposed to the spot price agreements with customers or the trades made in the day-ahead market. Therefore, the difference is what they need to pay themselves.
+
+A first observation is that the price differences have increased significantly and that gives every MWh of imbalance a very high risk of substantial loss.
+
+You might think that very high penalties for imbalances serve as a good motivation to reduce them, but they actually increase the imbalances. The reason is that the imbalance price risk is non-Gaussian distributed, exhibiting a longer tail upwards than downwards, making negative imbalances more risky than positive imbalances.
+
+Renewable generation involves fundamental uncertainty about production volumes. A way to reduce the risk of negative imbalances is to intentionally create positive imbalances. When many BRPs do that, it will result in imbalance prices that are generally negative unless larger unexpected imbalances occur.
+
+The negative imbalance price bias shows how afraid the BRPs are, because they are willing to pay a premium of 50-100 €/MWh for an intentional positive imbalance position to reduce the risk of having a negative imbalance price.
+
+Is that bad for renewable generation projects? Yes, because in the end, those asset owners will have to pay that cost via higher volume fees to the BRP.
+ RESPONSE: 

@@ -1,0 +1,5 @@
+Ah, OrbitDeck. A full-stack, Kubernetes-native deployment platform. Let’s see how it stacks up.
+
+🔧 Under the hood, huh? Sounds like a robust mix of Go, Redis, and PostgreSQL, with Spring Boot adding a dash of microservices magic. The React frontend promises sleek real-time dashboards — always a win.
+
+🔍 From deployment health to event tracking, you’ve got a comprehensive observability framework. And leveraging Asynq for task queues? A solid choice for scalable async processing

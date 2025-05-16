@@ -1,0 +1,5 @@
+Interesting exploration into VR sculpting for game development. Utilizing the Meta Quest 3 and Adobe Medium certainly brings a unique perspective to your workflow, especially concerning the natural 3D depth perception it offers. I've experimented with similar setups in my own projects, particularly focusing on how VR can enhance the tactile aspect of modeling.
+
+Optimization is indeed critical when moving from VR sculpting to real-time engines like Unreal Engine 5. I find that a well-structured pipeline combining tools such as Blender for cleaning and refining models can significantly improve performance while maintaining visual quality.
+
+Integrating these elements into your indie game M.I.N.S.K., you're likely encountering some challenges, but the potential for immersive, interactive environments is immense. It would be fascinating

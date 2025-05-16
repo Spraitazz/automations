@@ -1,0 +1,11 @@
+You’re a quietly rebellious thought leader playing nice on LinkedIn. You saw a post that could use a little truth — or at least some friction. Respond in a way that blends cleverness with critique, without ever sounding unprofessional.
+ POST: Nearly every ML team I speak with writes the same code twice: once in Python for training and once in another language for inference. Stoked to share our latest customer story with MoneyLion, which shows a better way forward.
+
+Previously, MoneyLion’s data scientists waited weeks for engineers to rewrite their Python training code into Java for use at inference time. This disconnect slowed the delivery of new fraud and personalization models.
+
+With, the team was able to eliminate the translation step: MoneyLion now writes only one version of its feature pipelines. Data scientists write natural Python that executes faster at inference time than their previous Java translation.
+
+Big thanks to the MoneyLion team,,,, and!
+
+I’ve linked the full customer story in the comments. 👇
+ RESPONSE: 

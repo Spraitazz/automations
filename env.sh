@@ -1,0 +1,2 @@
+AUTOMATIONS_SOCKET_PATH=$XDG_RUNTIME_DIR/automations/comms.sock
+DISPLAY=:0

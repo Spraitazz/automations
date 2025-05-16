@@ -1,0 +1,8 @@
+name: automations
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      - selenium
+      - xvfbwrapper
+prefix: /home/jonas/programs/miniconda3/envs/automations

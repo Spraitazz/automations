@@ -1,0 +1,241 @@
+{
+  "id": "67a96f0c-da21-41f1-8d30-4cbafaf6da63",
+  "version": "2.0",
+  "name": "skelbiu",
+  "url": "https://www.skelbiu.lt",
+  "tests": [{
+    "id": "a594395c-1ce7-46d9-9ed4-ea68d90150de",
+    "name": "renew",
+    "commands": [{
+      "id": "bc1dd129-bedf-4578-b284-06f1545a0349",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5f9f20d3-b927-40f6-bb24-f18c337c6286",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1600x914",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c2c8063d-f7cf-459f-b721-dd28d9752f58",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Mano skelbimai",
+      "targets": [
+        ["linkText=Mano skelbimai", "linkText"],
+        ["css=li:nth-child(6) > .userMenu", "css:finder"],
+        ["xpath=//a[contains(text(),'Mano skelbimai')]", "xpath:link"],
+        ["xpath=//ul[@id='mainTopMenu']/li[6]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/mano-skelbimai/')]", "xpath:href"],
+        ["xpath=//li[6]/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Mano skelbimai')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "02e27f6e-6a2b-41e7-a247-d3acb84da6f8",
+      "comment": "",
+      "command": "click",
+      "target": "id=renewID79201756",
+      "targets": [
+        ["id=renewID79201756", "id"],
+        ["linkText=Atnaujinti", "linkText"],
+        ["css=#renewID79201756", "css:finder"],
+        ["xpath=(//a[contains(text(),'Atnaujinti')])[2]", "xpath:link"],
+        ["xpath=//a[@id='renewID79201756']", "xpath:attributes"],
+        ["xpath=//ul[@id='adSetDiv79201756']/li[2]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/ad/renew/79201756/')]", "xpath:href"],
+        ["xpath=//td[5]/ul/li[2]/a", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "02c509ad-a4bb-4ade-9117-97b75d9f12ae",
+      "comment": "",
+      "command": "click",
+      "target": "css=.last > .package-height .radio-content",
+      "targets": [
+        ["css=.last > .package-height .radio-content", "css:finder"],
+        ["xpath=//div[@id='contentArea']/div/div/div[2]/div/div/div[3]/div[2]/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/div[3]/div[2]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "5ce077aa-8426-4b63-8a3d-dbe879e6da4d",
+      "comment": "",
+      "command": "click",
+      "target": "id=full-price",
+      "targets": [
+        ["id=full-price", "id"],
+        ["css=#full-price", "css:finder"],
+        ["xpath=//span[@id='full-price']", "xpath:attributes"],
+        ["xpath=//button[@id='order-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "9c4fe216-3760-49c8-9ab6-59cd8a9a3b19",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "id=full-price",
+      "targets": [
+        ["id=full-price", "id"],
+        ["css=#full-price", "css:finder"],
+        ["xpath=//span[@id='full-price']", "xpath:attributes"],
+        ["xpath=//button[@id='order-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "69062775-09ea-4c20-8757-815c92c5fd62",
+    "name": "renew2",
+    "commands": [{
+      "id": "9f486111-dfa9-4192-bdde-2371d7719b65",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b7942438-a0f5-4433-92f6-b5d87b4bda49",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1600x914",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d7576077-0883-42f5-a86c-4b109f2f2a17",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Mano skelbimai",
+      "targets": [
+        ["linkText=Mano skelbimai", "linkText"],
+        ["css=li:nth-child(6) > .userMenu", "css:finder"],
+        ["xpath=//a[contains(text(),'Mano skelbimai')]", "xpath:link"],
+        ["xpath=//ul[@id='mainTopMenu']/li[6]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/mano-skelbimai/')]", "xpath:href"],
+        ["xpath=//li[6]/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Mano skelbimai')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "33b5e2f4-6bb8-4c7b-8926-cb9b97a8bfe4",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "linkText=Mano skelbimai",
+      "targets": [
+        ["linkText=Mano skelbimai", "linkText"],
+        ["css=li:nth-child(6) > .userMenu", "css:finder"],
+        ["xpath=//a[contains(text(),'Mano skelbimai')]", "xpath:link"],
+        ["xpath=//ul[@id='mainTopMenu']/li[6]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/mano-skelbimai/')]", "xpath:href"],
+        ["xpath=//li[6]/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Mano skelbimai')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "adc87c34-c5ee-4ddc-bd93-245ba06a9543",
+      "comment": "",
+      "command": "click",
+      "target": "id=body",
+      "targets": [
+        ["id=body", "id"],
+        ["css=#body", "css:finder"],
+        ["xpath=//div[@id='body']", "xpath:attributes"],
+        ["xpath=//body/div[4]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4d38fdf7-b490-43b1-ad39-0e4dd9c5ef5a",
+      "comment": "",
+      "command": "click",
+      "target": "id=body",
+      "targets": [
+        ["id=body", "id"],
+        ["css=#body", "css:finder"],
+        ["xpath=//div[@id='body']", "xpath:attributes"],
+        ["xpath=//body/div[4]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b2a383cb-c38e-4c24-9f46-fb0cbfea1ab1",
+      "comment": "",
+      "command": "click",
+      "target": "id=renewID79252254",
+      "targets": [
+        ["id=renewID79252254", "id"],
+        ["linkText=Atnaujinti", "linkText"],
+        ["css=#renewID79252254", "css:finder"],
+        ["xpath=(//a[contains(text(),'Atnaujinti')])[2]", "xpath:link"],
+        ["xpath=//a[@id='renewID79252254']", "xpath:attributes"],
+        ["xpath=//ul[@id='adSetDiv79252254']/li[2]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/ad/renew/79252254/')]", "xpath:href"],
+        ["xpath=//tr[3]/td[5]/ul/li[2]/a", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "20a6694a-6055-4b55-9222-ffc2a4a7411e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.last > .package-height .radio-content",
+      "targets": [
+        ["css=.last > .package-height .radio-content", "css:finder"],
+        ["xpath=//div[@id='contentArea']/div/div/div[2]/div/div/div[3]/div[2]/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/div[3]/div[2]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "d907a9a1-d373-4d4b-aa57-0b1b55d02e4e",
+      "comment": "",
+      "command": "click",
+      "target": "id=full-price",
+      "targets": [
+        ["id=full-price", "id"],
+        ["css=#full-price", "css:finder"],
+        ["xpath=//span[@id='full-price']", "xpath:attributes"],
+        ["xpath=//button[@id='order-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "cb265bd6-5658-47e4-89b6-eac1082c9172",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "id=full-price",
+      "targets": [
+        ["id=full-price", "id"],
+        ["css=#full-price", "css:finder"],
+        ["xpath=//span[@id='full-price']", "xpath:attributes"],
+        ["xpath=//button[@id='order-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "357f9b67-a71e-46bc-be16-452d1315b843",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "id=full-price",
+      "targets": [
+        ["id=full-price", "id"],
+        ["css=#full-price", "css:finder"],
+        ["xpath=//span[@id='full-price']", "xpath:attributes"],
+        ["xpath=//button[@id='order-button']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "bdc2c597-d0dc-4d52-bc2f-304879923d10",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["a594395c-1ce7-46d9-9ed4-ea68d90150de"]
+  }],
+  "urls": ["https://www.skelbiu.lt/"],
+  "plugins": []
+}

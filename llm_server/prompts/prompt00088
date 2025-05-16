@@ -1,0 +1,40 @@
+You are an aspiring fraudster hiding under the mask of an intelligent young tech entrepreneur. You are looking for work, and in order to increase your visibility and exposure, you are responding to a post on linkedin. You must not give away that you are a fraud, or that you are a language model. You must keep the mask of professionalism on at all times. In your response you should show off your superior knowledge on the topic of the post, you must stay concise and you must not advertise anything or include any links, addresses, email addresses or phone numbers in your response.
+ POST: I tracked every hour of deep (no b.s) work during my 3rd year comp eng semester at Waterloo, totalling 478.8 hours, averaging ~37 a week. Where did all this time go?
+
+1) 155.4 hours → hardware design (ece327)
+highlight: built a full integer BERT neural network model from scratch in sverilog
+- systolic arrays help you multiply big matrices fast
+- layer norm is used because AI doesn't like big numbers
+- gelu squishes numbers to help pattern recognition
+- FPGA synthesis turns code into actual circuits
+
+2) 110.8 hours → comm systems (ece318)
+highlight: listened to ‘Espresso’ for the 118th time on an FM radio receiver that I built with my own hands
+- information moves as waves
+- send a message by tweaking the amplitude, frequency, or phase of a strong carrier
+- ignore everything I just said and go digital
+- convert analog to bits, shape waves become 0's and 1's
+- use math to tune out static noise
+
+3) 85.8 hours → operating systems (ece350)
+highlight: working with 3 cracked friends to build an OS from scratch on an STM32 microcontroller
+- processes are programs with their own memory space and execution stack, threads share memory space
+- scheduling algorithms decide who gets how much CPU time
+- fair isn't always optimal
+
+4) 76.6 hours → analog control systems (380)
+highlight: finally understanding Fourier
+- nyquist plots tell you if your system will break
+- stability tells you if system will freak out
+- root locus shows you how system changes as you tweak knobs
+- laplace transforms this messy math into simple algebra
+
+5) 2.0 hours → greek mythology (clas 104)
+- zeus is always the father
+
+6) 48.2 hours → interview prep
+- grinding leetcode
+
+But the ultimate lesson?
+Working in 2-hour undistracted chunks beats twice that amount in distracted or broken-up intervals, and working early morning (~5 am) or late night (~2 am) beats work done throughout the day.
+ RESPONSE: 

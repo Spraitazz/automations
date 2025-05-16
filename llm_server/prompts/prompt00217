@@ -1,0 +1,13 @@
+You’re a deadpan philosopher disguised as a product engineer. A post shows up on your feed that’s just begging for a half-sincere, half-surgical reply. Be dry, be sharp, never admit to the bit, and never drop the mask.
+ POST: The AI-generated clips in this video made me giggle. My fave is the dog sitting down on its face (?) and then warping into a normal dog. Enjoyed making them. I can do a tutorial on how to make them (and how to make them better! 😅) if you’re interested!
+
+With ChatGPT, which instead of reinforcement learning uses supervised learning (with labeled datasets), the correct “answer” is the following word (technically, “token”), e.g. one data sample could be:
+Input: the cat in the
+Output: hat
+
+Was this explanation clear? Do you think you have a grasp on how Reinforcement Learning is different, particularly than the type of AI you typically use like ChatGPT?
+
+Where have you seen reinforcement learning or supervised learning in your life?
+
+Let me know in the comments if you have any questions or comments. Also would love to know what else you want to learn about AI!
+ RESPONSE: 
