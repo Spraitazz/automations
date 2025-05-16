@@ -1,18 +1,18 @@
 
 
+**/logs/**
+
+llm_server/
+#llm_server/prompts/*
+#llm_server/llm_ggufs/*
+#llm_server/prompt_info.csv
+
 githubignore
 deployignore
 python_template.gitignore
 conda_env_github.yml
 
 spires/other/
-
-logs/*
-
-llm_server/
-#llm_server/prompts/*
-#llm_server/llm_ggufs/*
-#llm_server/prompt_info.csv
 
 linkedin/
 
