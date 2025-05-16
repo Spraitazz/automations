@@ -17,6 +17,21 @@ branches:
 ----------------------------------------------------
 publishing to remote (better version?)
 
+git switch working
+
+git switch -c deploy
+
+automations$ cp deployignore .gitignore
+automations$ vim .gitignore 
+automations$ cp definitions_deploy.py definitions.py
+automations$ vim definitions.py 
+automations$ cp controller_deploy.py controller.py
+
+git add -A
+
+git commit -m "what here?"
+
+
 
 -----------------------------------------------------
 publishing to remote (replace remote: github/deploy):
