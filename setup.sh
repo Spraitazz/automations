@@ -1,7 +1,7 @@
 
 SERVICE_NAME="automations"
 
-CONDA_ENV_NAME="web_automations"
+CONDA_ENV_NAME="automations"
 
 USER=$(whoami)
 
