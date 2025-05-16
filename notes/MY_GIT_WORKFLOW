@@ -21,16 +21,18 @@ git switch working
 
 git switch -c deploy
 
-automations$ cp deployignore .gitignore
-automations$ vim .gitignore 
-automations$ cp definitions_deploy.py definitions.py
-automations$ vim definitions.py 
-automations$ cp controller_deploy.py controller.py
+cp deployignore .gitignore
 
-git add -A
+# Tell git to stop tracking all files
+git rm --cached -r . 
+# re-add only files not ignored by .gitignore
+git add . 
 
-git commit -m "what here?"
+mv definitions_deploy.py definitions.py
+mv controller_deploy.py controller.py
 
+#git commit -m "what here?"
+git commit --amend --no-edit
 
 
 -----------------------------------------------------

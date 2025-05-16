@@ -2,6 +2,11 @@
 
 **/logs/**
 
+configs/
+
+definitions.py
+controller.py
+
 llm_server/
 #llm_server/prompts/*
 #llm_server/llm_ggufs/*
