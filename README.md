@@ -1,181 +1,62 @@
 
 # automations
 
-A toolkit containing a minimal llm server for running persistent automations.
+A wrapper for running persistent python automations.
 
 
 ## Description
 
-What it does - provided automation name, config, run() method, it:
-    1. persistently runs automation, wrapping run in try catch with basic email and restart handling
-    2. contains a minimal llm server with an (Fast)API to submit, cancel and retrieve job (results)
-    3. deals with logs, control automations, communication with automation through any terminal (systemd.service running socket server)
+What it does - provided automation config and run() method, it:
+
+* persistently runs automation, wrapping run in try catch with basic email and restart handling
+* deals with logs, control automations, communication with automation through any terminal (systemd.service running socket server)
 
 
-## Getting Started
+## Setup
 
-### Dependencies
+Tested on linux mint 22.1 (xfce)
 
+What you need:
 
-sudo apt install xvfb
-pip install xvfbwrapper
+* (mini)conda with its binary in your PATH (tested version 25.3.1) 
+* xvfb (sudo apt install xvfb)
 
-pip install uvicorn
-pip install fastapi
-pip install pandas
+after you git clone the project, in project root directory:
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+conda env create -f environment.yml
+mkdir logs
 
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
-------------------
-(Ubuntu 20.04) 
-
-* Installation instructions:
-
-1. Set up (python) virtual environment
-    conda env create -f conda_env.yml
-    conda activate web_automations
-
-2. Get llama-cpp-python from pypi, ensuring the right version of glibc, openmp <---WHICH VERSIONS??
-    export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-    conda install -c conda-forge libgomp
-    export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
-    export CMAKE_ARGS="-DLLAMA_BLAS=OFF -DLLAMA_OPENBLAS=OFF"
-    pip install --force-reinstall --no-cache-dir llama-cpp-python
+modify the "config_fpath" variable in definitions.py to point to your controller config,
+a sufficient example is in configs/controller_example.ini
 
 
-* Tests
+### Configure automations
 
-1. Check llama-cpp installed ok
-    ldd $(find $(python -c "import llama_cpp; print(llama_cpp.__path__[0])") -name "*.so")
-----------------------
+For the example "skelbiu" automation included (see configs/skelbiu_example.ini for an example of a sufficient config),
+modify the entry for skelbiu at the top of controller.py to point correctly to your config file, and modify there whether you want it to run on startup. 
+
+---------------------------------------------------
+Finally
+---------------------------------------------------
+
+./setup.sh
+source ~/.bashrc
+
+and, if you want to start an automation, just type: "automations start automation_name"
+---------------------------------------------------
+Note:
+
+Any changes to the configuration in controller.py (or any files affecting automations
+except for config.ini files, for which it is enough to stop/start the automation) need to be followed by
+./cleanup and ./setup (note: this will kill all running automations)
 
 
 
-### Executing program
-
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-## Help
-
-No help as of yet.
-
-## Authors
-
-* spraitazz
-
-## Version History
-
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
-
-## License
-
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
-
-## Build
-
-1. Check code style with black
-2. Check types with mypy
-3. Check imports with isort
-4. lint with flake8
-5. lint with pylint
-6. test with pytest
-
----------------------------
-TO DO:
-
-1. # Install Xvfb if it's not installed
-    sudo apt-get install xvfb
-
-    # Start a virtual display (for example, display 99)
-    # this command is most likely executed by systemd.service before controller.py is ran
-    Xvfb :99 &
-
-    # Set DISPLAY to use the virtual display
-    export DISPLAY=:99
-
-2. make easy to use chrome user profile, already with cookies accepted etc.
-    web_automations start/stop driver <--- can have multiple drivers (different browser configs) e.g. start driver main_driver driver_config.ini
-    web_automations start bot_name config_fname <--- this should pass driver to bot, so bot starts in new tab(s) #with multiple drivers, can pass chosen driver as arg
-
----------------------------
-other
+### Commands
 
 
-
-for comms through terminal, using systemd.service:
-    socket server is in controller.py
-    socket client (run/web_automations/comms.sock) is in the web_automations file (calling ./setup.py copies this file to ???)
-
-check systemd.service status:
-    systemctl status web_automations
-
-check systemd.service logs:
-    sudo journalctl -u web_automations.service -f
-    journalctl --user -u automations.service -f
----------------------------
-usage
-
-1. web_automations start/stop llm_server
-2. web_automations list bots
-3. web automations start bot_name config_fname (config_fname is optional, otherwise will use the default set in controller.py)
-4. web automations status/stop bot_name
-
-
-
----------------------------
-setup
-
-chmod +x setup.sh
-#superuser needed for systemd service
-source setup.sh 
-
-
-----------------------------
-cleanup
-
-chmod +x cleanup.sh
-#superuser needed for systemd service
-./cleanup.sh
-
-
-
-
-
---------------------
-requirements:
-
-glibc >=2.32
-
-#!/usr/bin/env python3
-
-?? ####sudo apt-get install chromium-browser chromium-chromedriver
-
-
---------------------
-
+* automations start/stop automation_name
+* automations list
 
 
 
