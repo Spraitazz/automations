@@ -1,3 +1,4 @@
+
 from skelbiu.definitions import *
 
 
@@ -60,17 +61,14 @@ def attempt_click(driver: ChromeDriver, elem: WebElement, logger: logging.Logger
         return False
 
 
-def login(
-    automation: WebAutomation,
-):  # driver: ChromeDriver, config: dict, logger: logging.Logger):
+def login(automation: WebAutomation):  
 
-    # logger = logging.getLogger(f"{AUTOMATION_NAME}_logger")
     logger = automation.logger
     driver = automation.driver
     config = automation.config
 
     logger.debug("logging in")
-    driver.get(LOGIN_URL)
+    automation.driver_try_get(LOGIN_URL)
     click_delay()
 
     # check if logged in already, then bypass

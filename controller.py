@@ -27,7 +27,7 @@ spires_automation = {
     "run_func": run_spires,
     "config_fpath": Path.home() / "automation_configs" / "spires" / "config.ini",
     "with_xvfb": True,
-    "run_on_startup": True,
+    "run_on_startup": False,
 }
 
 AUTOMATIONS = {"skelbiu": skelbiu_automation, "spires": spires_automation}
@@ -82,7 +82,7 @@ def start_automation(automation_name: str, config_fpath: str):
 
     if not os.path.exists(config_fpath):
         logger.warning(f"config file {config_fpath} not found")
-        return False
+        return None
 
     automation = None
     if AUTOMATIONS[automation_name]["class"] == WebAutomation:
@@ -107,7 +107,7 @@ def start_automation(automation_name: str, config_fpath: str):
 
     automation.start(logger)
     automations_running[automation_name] = automation
-    return True
+    return automation
 
 
 def controller_start_automation(
@@ -133,8 +133,8 @@ def controller_start_automation(
     if len(config_fpath) == 0:
         config_fpath = AUTOMATIONS[automation_name]["config_fpath"]
 
-    res = start_automation(automation_name, config_fpath)
-    if res:
+    automation = start_automation(automation_name, config_fpath)
+    if automation is not None:
         conn.sendall(
             f"Started {automation_name} with config file {config_fpath} and log directory {automation.logs_folder_path}\n".encode()
         )

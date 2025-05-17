@@ -5,9 +5,6 @@
 configs/
 
 llm_server/
-#llm_server/prompts/*
-#llm_server/llm_ggufs/*
-#llm_server/prompt_info.csv
 
 githubignore
 deployignore

@@ -1,3 +1,4 @@
+
 from spires.definitions import *
 
 
@@ -91,9 +92,14 @@ def deepest_div(element: WebElement):
 #
 # TO DO: should wait for some element to appear after every url load, button click?
 #
-def login(driver: ChromeDriver, config: dict, logger: logging.Logger):
+def login(automation: WebAutomation):
+
+    driver = automation.driver
+    config = automation.config
+    logger = automation.logger
+
     logger.debug("logging in")
-    driver.get(LOGIN_URL)
+    automation.driver_try_get(LOGIN_URL)
     click_delay()
 
     xpath = '//button[p[normalize-space(text())="Login with Email"]]'
@@ -117,5 +123,10 @@ def login(driver: ChromeDriver, config: dict, logger: logging.Logger):
         By.XPATH, '//*[contains(@class, "login_signupNavButton")]'
     )
     submit_btn.click()
-    click_delay()
     logger.debug("clicked login")
+    click_delay()
+    
+    
+    
+    
+    

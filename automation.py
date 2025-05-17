@@ -155,12 +155,30 @@ class WebAutomation(Automation):
 
     def cleanup(self, logger: logging.Logger):
         try:
-            self.driver.quit()
+            if self.driver is not None:
+                self.driver.quit()
         except:
             logger.exception("")
         finally:
             self.driver = None
             super().cleanup(logger)
+
+    def driver_try_get(self, url: str):
+
+        num_tries_max = 3
+        retry_sleep_s = 10.
+        i_try = 0
+        while i_try < num_tries_max:
+            try:
+                self.driver.get(url)
+                return
+            except:
+                self.logger.debug(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
+                self.interruptable_sleep(retry_sleep_s)
+                i_try += 1 
+        exc_fstr = f"driver could not get {url} after {num_tries_max} tries"
+        self.logger.error(exc_fstr)    
+        raise Exception(exc_fstr)
 
     def email_exception_handling_wrapper(self, logger: logging.Logger):
 

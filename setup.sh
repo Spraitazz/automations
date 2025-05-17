@@ -2,7 +2,7 @@
 # set up user service
 #
 SERVICE_NAME="automations"
-CONDA_ENV_NAME="automations"
+CONDA_ENV_NAME="web_automations"
 
 USER=$(whoami)
 
@@ -44,7 +44,8 @@ if [ ! -f "$SERVICE_FILE" ]; then
   cat <<EOF | tee "$SERVICE_FILE"
 [Unit]
 Description=automations controller 
-After=default.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Restart=on-failure 

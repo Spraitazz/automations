@@ -57,7 +57,19 @@ def run(automation: WebAutomation):
     automation.set_config(config)
     logger.debug(f"{AUTOMATION_NAME} automation started")
 
-    supported_currencies = get_supported_currencies(logger)
+    supported_currencies = []
+    num_tries_max = 3
+    retry_sleep_s = 10.
+    i_try = 0
+    while i_try < num_tries_max:
+        try:
+            supported_currencies = get_supported_currencies(logger)
+            break
+        except requests.ConnectionError:
+            logger.warning(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
+            automation.interruptable_sleep(retry_sleep_s)
+            i_try += 1        
+    #supported_currencies = get_supported_currencies(logger)
     if len(supported_currencies) == 0:
         logger.error("supported currencies were not retrieved, cannot bid")
         return
@@ -65,13 +77,12 @@ def run(automation: WebAutomation):
     driver = webdriver.Chrome(options=DEFAULT_BROWSER_OPTIONS)
     automation.set_driver(driver)
 
-    login(driver, config, logger)
+    login(automation)
 
     #
     # TO DO: I couldnt be doing this forever, RAM runs out, what do?
     #
     chats_seen = []
-
     while not automation.stop_event.is_set():
 
         logger.debug("checking for new jobs")
@@ -85,15 +96,15 @@ def run(automation: WebAutomation):
         if config["RESPOND_MESSAGES"]:
             try:
                 logger.debug("checking for new messages from students")
-                driver.get(MESSAGES_URL)
+                automation.driver_try_get(MESSAGES_URL)
                 chats_seen = check_messages(automation, chats_seen=chats_seen)
             except:
                 logger.exception("")
 
-        driver.get(DEFAULT_URL)
+        automation.driver_try_get(DEFAULT_URL)
         sleep_s = random.uniform(config["MIN_SLEEP_S"], config["MAX_SLEEP_S"])
         logger.debug("returned home and going to sleep for {:.1f} s".format(sleep_s))
         automation.interruptable_sleep(sleep_s)
-        driver.get(HOME_URL)
+        automation.driver_try_get(HOME_URL)
 
     logger.debug("stop event set by controller, returning")
