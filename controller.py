@@ -4,7 +4,6 @@ from definitions import *
 from automation import Automation, WebAutomation
 
 from skelbiu.run import run as run_skelbiu
-from spires.run import run as run_spires
 #
 # IMPORTANT: see example config file provided in configs/skelbiu_example.ini
 # you might have the # character in your password, in which case in the
@@ -19,18 +18,11 @@ skelbiu_automation = {
     "run_func": run_skelbiu,
     "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
     "with_xvfb": True,
-    "run_on_startup": False,
+    "run_on_startup": True,
 }
 
-spires_automation = {
-    "class": WebAutomation,
-    "run_func": run_spires,
-    "config_fpath": Path.home() / "automation_configs" / "spires" / "config.ini",
-    "with_xvfb": True,
-    "run_on_startup": False,
-}
 
-AUTOMATIONS = {"skelbiu": skelbiu_automation, "spires": spires_automation}
+AUTOMATIONS = {"skelbiu": skelbiu_automation}
 
 
 # controller logger
@@ -45,7 +37,6 @@ handler.setFormatter(LOG_FORMATTER_DEFAULT)
 logger.addHandler(handler)
 
 
-llm_server_thread = None
 automations_running = {}
 xvfb_display_counter = 30
 
@@ -144,13 +135,7 @@ def controller_start_automation(
         )
 
 
-def respond_and_log(conn: socket.socket, logger: logging.Logger):
-    pass
 
-
-#
-# TO DO: logger.debug and conn sendall into 1 command
-#
 def handle_client(conn: socket.socket):
 
     global llm_server_thread
@@ -175,49 +160,7 @@ def handle_client(conn: socket.socket):
 
         if len(commands) == 2:
 
-            # currently only allow "start/stop llm_server" and "status/stop bot_name"
-            if commands[0] == "start" and commands[1] == "llm_server":
-
-                conn.sendall(b"not available")
-                return
-
-                if llm_server_thread is None:
-                    # start llm server
-                    config = uvicorn.Config(
-                        llm_server.run.app,
-                        host=LLM_SERVER_HOST,
-                        port=LLM_SERVER_PORT,
-                        loop="asyncio",
-                    )
-                    llm_server_thread = ServerThread(config)
-                    llm_server_thread.start()
-                    logger.debug(f"llm server started url: {LLM_SERVER_BASE_URL}")
-                    conn.sendall(
-                        f"llm server started, url: {LLM_SERVER_BASE_URL}\n".encode()
-                    )
-                else:
-                    logger.debug(
-                        f"llm server already started, url: {LLM_SERVER_BASE_URL}"
-                    )
-                    conn.sendall(
-                        f"llm server already started, url: {LLM_SERVER_BASE_URL}\n".encode()
-                    )
-
-            elif commands[0] == "stop" and commands[1] == "llm_server":
-
-                conn.sendall(b"not available")
-                return
-
-                if llm_server_thread is None:
-                    logger.debug("llm server not running")
-                    conn.sendall("llm server not running\n".encode())
-                else:
-                    llm_server_thread.shutdown()
-                    llm_server_thread = None
-                    logger.debug("llm server stopped")
-                    conn.sendall("llm server stopped\n".encode())
-
-            elif commands[0] == "status" or commands[0] == "stop":
+            if commands[0] == "status" or commands[0] == "stop":
                 automation_name = commands[1]
                 if not automation_name in automations_running:
                     conn.sendall(f"{automation_name} is not running\n".encode())

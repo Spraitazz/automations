@@ -1,9 +1,26 @@
 
+**/logs/**
 
-llm_server/llm_ggufs/
+githubignore
+deployignore
+python_template.gitignore
+conda_env_deploy.yml
 
-**/logs/*
+notes/ 
+scripts/
 
+llm_server/
+
+spires/
+linkedin/
+
+selenium_IDE_projects/
+
+
+#
+#From now on: Python.gitignore template from GitHub
+#https://github.com/github/gitignore/blob/main/Python.gitignore
+#
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
