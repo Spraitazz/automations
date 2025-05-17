@@ -1,9 +1,12 @@
 from skelbiu.definitions import *
-from skelbiu.utils import click_delay, attempt_click
+from skelbiu.utils import click_delay
 
 
 # this assumes we are already at MY_ADS_URL (redirected by default after logging in)
-def renew_ads(driver: ChromeDriver, logger: logging.Logger):
+def renew_ads(automation: WebAutomation):
+
+    logger = automation.logger
+    driver = automation.driver
 
     table = driver.find_element(By.ID, "adsList")
     rows = table.find_elements(By.TAG_NAME, "tr")
@@ -25,10 +28,10 @@ def renew_ads(driver: ChromeDriver, logger: logging.Logger):
             logger.error(f"inner = {inner}")
             continue
 
-        clicked = attempt_click(driver, target, logger)
+        clicked = automation.driver_try_click(target)
         if not clicked:
+            # one last try?
             target = driver.find_element(By.ID, "renewID{}".format(item_id))
-            # print(f're-attempting click on target: {target}')
             target.click()
         click_delay()
 
@@ -37,12 +40,13 @@ def renew_ads(driver: ChromeDriver, logger: logging.Logger):
                 lambda d: len(d.find_elements(By.CLASS_NAME, "slot")) >= 2
             )
         except TimeoutException:
-            logger.warning('couldnt find by class_name "slot"')
+            logger.warning("couldnt find by class_name 'slot'")
             continue
 
         targets = driver.find_elements(By.CLASS_NAME, "slot")
         if len(targets) != 2:
             logger.warning(f"len(targets) = {len(targets)}")
+            # could not go by clicking for some reason, then just go directly to item renew url
             item_href = f"{BASE_URL}/ad/renew/{str(item_id).strip()}"
             driver.get(item_href)
             #

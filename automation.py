@@ -1,3 +1,5 @@
+import re
+
 from definitions import *
 
 
@@ -166,19 +168,74 @@ class WebAutomation(Automation):
     def driver_try_get(self, url: str):
 
         num_tries_max = 3
-        retry_sleep_s = 10.
+        retry_sleep_s = 10.0
         i_try = 0
         while i_try < num_tries_max:
             try:
                 self.driver.get(url)
                 return
             except:
-                self.logger.debug(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
+                self.logger.debug(
+                    f"connection error on try {i_try+1}/{num_tries_max}, will retry in {retry_sleep_s} s"
+                )
                 self.interruptable_sleep(retry_sleep_s)
-                i_try += 1 
+                i_try += 1
         exc_fstr = f"driver could not get {url} after {num_tries_max} tries"
-        self.logger.error(exc_fstr)    
+        self.logger.error(exc_fstr)
         raise Exception(exc_fstr)
+
+    def driver_try_click(self, elem: WebElement):
+
+        try:
+            elem.click()
+            return True
+        except ElementClickInterceptedException as e:
+            # Click intercepted
+            pass
+            # Try to extract the intercepting element
+            match = re.search(r"Other element would receive the click: (.+?)\n", str(e))
+            if match:
+                html_snippet = match.group(1)
+                # print("Intercepting element:", html_snippet)
+
+                # Try to build a selector from id > class > tag
+                id_match = re.search(r'id="([^"]+)"', html_snippet)
+                class_match = re.search(r'class="([^"]+)"', html_snippet)
+                tag_match = re.search(r"<(\w+)", html_snippet)
+
+                selector = None
+                if id_match:
+                    selector = f"#{id_match.group(1)}"
+                elif class_match:
+                    class_selector = "." + ".".join(class_match.group(1).split())
+                    selector = (
+                        f"{tag_match.group(1)}{class_selector}"
+                        if tag_match
+                        else class_selector
+                    )
+                elif tag_match:
+                    selector = tag_match.group(1)
+
+                if selector:
+                    # Try to hide {selector}
+                    self.driver.execute_script(
+                        f"""
+                        var el = document.querySelector("{selector}");
+                        if (el) {{
+                            el.style.display = "none";
+                            el.remove();
+                        }}
+                        """
+                    )
+                    time.sleep(0.5)
+                else:
+                    pass
+                    # Could not construct a selector from the intercepted element
+            else:
+                # Could not extract element from exception
+                pass
+
+            return False
 
     def email_exception_handling_wrapper(self, logger: logging.Logger):
 

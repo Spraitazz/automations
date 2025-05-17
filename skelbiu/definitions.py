@@ -5,7 +5,6 @@ from logging.handlers import TimedRotatingFileHandler
 import configparser
 import time
 import random
-import re
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
 from selenium.webdriver.common.by import By

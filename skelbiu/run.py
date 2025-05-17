@@ -1,4 +1,3 @@
-
 from definitions import DEFAULT_URL, DEFAULT_BROWSER_OPTIONS
 from skelbiu.definitions import *
 from skelbiu.utils import login
@@ -34,7 +33,7 @@ def run(automation: WebAutomation):
 
     while not automation.stop_event.is_set():
         login(automation)
-        renew_ads(driver, logger)
+        renew_ads(automation)
         automation.driver_try_get(DEFAULT_URL)
         sleep_s = random.uniform(config["MIN_SLEEP_S"], config["MAX_SLEEP_S"])
         logger.debug(

@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
+from selenium.webdriver.remote.webelement import WebElement
 from xvfbwrapper import Xvfb
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +33,7 @@ CONTROLLER_LOG_PATH = os.path.join(controller_log_dir_abspath, "log")
 if not os.path.exists(CONTROLLER_LOG_PATH):
     os.makedirs(CONTROLLER_LOG_PATH)
 
-# set browser options
+# set default browser options
 DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()
 DEFAULT_BROWSER_OPTIONS.add_argument("--start-maximized")
 DEFAULT_BROWSER_OPTIONS.add_argument("--incognito")
