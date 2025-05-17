@@ -21,12 +21,13 @@ What you need:
 * (mini)conda with its binary in your PATH (tested version 25.3.1) 
 * xvfb (sudo apt install xvfb)
 
-after you git clone the project, in project root directory:
+Ffter you git clone the project, in project root directory:
 
 conda env create -f environment.yml
+
 mkdir logs
 
-modify the "config_fpath" variable in definitions.py to point to your controller config,
+Next, modify the "config_fpath" variable in definitions.py to point to your controller config,
 a sufficient example is in configs/controller_example.ini
 
 
@@ -35,28 +36,26 @@ a sufficient example is in configs/controller_example.ini
 For the example "skelbiu" automation included (see configs/skelbiu_example.ini for an example of a sufficient config),
 modify the entry for skelbiu at the top of controller.py to point correctly to your config file, and modify there whether you want it to run on startup. 
 
----------------------------------------------------
-Finally
----------------------------------------------------
+### Finally
+
 
 ./setup.sh
+
 source ~/.bashrc
 
 and, if you want to start an automation, just type: "automations start automation_name"
----------------------------------------------------
-Note:
-
-Any changes to the configuration in controller.py (or any files affecting automations
-except for config.ini files, for which it is enough to stop/start the automation) need to be followed by
-./cleanup and ./setup (note: this will kill all running automations)
 
 
-
-### Commands
+## Commands
 
 
 * automations start/stop automation_name
 * automations list
 
 
+## Note:
+
+Any changes to the configuration in controller.py (or any files affecting automations
+except for config.ini files, for which it is enough to stop/start the automation) need to be followed by
+./cleanup and ./setup (note: this will kill all running automations)
 
