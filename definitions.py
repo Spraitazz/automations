@@ -27,9 +27,9 @@ if SOCKET_PATH is None:
     exit(0)
 
 controller_log_dir_abspath = os.path.join(BASE_DIR, "logs", "controller")
+if not os.path.exists(controller_log_dir_abspath):
+    os.makedirs(controller_log_dir_abspath)
 CONTROLLER_LOG_PATH = os.path.join(controller_log_dir_abspath, "log")
-if not os.path.exists(CONTROLLER_LOG_PATH):
-    os.makedirs(CONTROLLER_LOG_PATH)
 
 # set default browser options
 DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()
