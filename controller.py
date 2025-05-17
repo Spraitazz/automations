@@ -51,7 +51,6 @@ xvfb_display_counter = 30
 #          BUT: i don't want this to hold until that -> ??????????????
 #
 def wait_for_stopped(automation_name: str, conn: socket.socket, logger: logging.Logger):
-    # conn.sendall(f"stopping automation [spires]\n".encode())
     automation = automations_running[automation_name]
     while not automation.stopped_event.is_set():
         time.sleep(0.1)
@@ -137,8 +136,6 @@ def controller_start_automation(
 
 
 def handle_client(conn: socket.socket):
-
-    global llm_server_thread
 
     with conn:
         data = conn.recv(1024).decode().strip()
