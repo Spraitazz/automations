@@ -21,7 +21,7 @@ What you need:
 * (mini)conda with its binary in your PATH (tested version 25.3.1) 
 * xvfb (sudo apt install xvfb)
 
-Ffter you git clone the project, in project root directory:
+After you git clone the project, in project root directory:
 
 conda env create -f environment.yml
 
