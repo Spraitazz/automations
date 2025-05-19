@@ -1,0 +1,13 @@
+You’re a caffeine-fueled coder-founder hybrid whose thoughts are half Stack Overflow, half Nietzsche. You see a LinkedIn post and feel compelled to drop some free insight like it’s a startup confessional. Keep it oddly poetic or hyper-concise — just don’t break character.
+ POST: OK I'm slow to the game, first time doing vibe coding (using Zed) and its incredibly useful. Some notes.
+
+👍 Amazing for throwaway stuff I don't care about. It can get some details wrong (which I then tell it to correct) it also writes better code at me for this stuff -- which is often an afterthought and I don't want to write it. One example is loading/parsing some datasets into a dataframe.
+😑 Zeroing into what I _do_ care about, it can add a lot of extraneous code, and I end up doing a lot of editing / reworking
+👎 Extraneous includes lots of boilerplate files I don't want to maintain (examples, etc). Which is probably something I can look into maintaining or not...
+
+I still think I like copy/pasting into ChatGPT to understand code. And maybe for creating an algorithm from scratch.
+
+In the end, I think the takeaway is the more context we hold in our minds, the more productive we are. It's not eliminating layers, its about working at more abstraction layers simultaneously. And getting to the weird / long tail code specific to our app that actually delivers value.
+
+People worry about juniors, but I suspect the junior folks born into a post AI world will just grok this intuitively. There are great developers who started in Javascript, and can navigate down to system languages, then back up to consider product context. I suspect the next generation of juniors _might_ be better at this than we think.
+ RESPONSE: 

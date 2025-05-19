@@ -5,6 +5,8 @@ from logging.handlers import TimedRotatingFileHandler
 import configparser
 import time
 import random
+from datetime import datetime
+import json
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
 from selenium.webdriver.common.by import By
@@ -29,3 +31,10 @@ CLICK_DELAY_MIN = 2.0
 CLICK_DELAY_MAX = 4.0
 
 DEFAULT_LOAD_WAIT_TIME_S = 10
+
+#
+# currently this is simply a dict with the unique item idx as keys and last updated
+# datetime (iso format) as values, stored in json format.
+#
+MY_ITEMS_STORE_FNAME = "my_items.json"
+

@@ -1,18 +1,29 @@
 from definitions import DEFAULT_URL, DEFAULT_BROWSER_OPTIONS
 from skelbiu.definitions import *
-from skelbiu.utils import login
+from skelbiu.utils import login, check_need_renew, update_items_store
 from skelbiu.renew_ads import renew_ads
 
 if __name__ == "__main__":
     print("not supposed to be ran like this")
     exit(0)
 
-
+#
+# only go on site if:
+#                    (A): I have no items in my item store
+#                    (B): one of my items has not been renewed in more than 25h
+#                    (C): one of my items has an unknown last renewed datetime ("-")
+#
+# item store is json file in the same directory as this module called [MY_ITEMS_STORE_FNAME in definitions.py]
+#
 def run(automation: WebAutomation):
 
     logger = automation.logger
-    config = {}
 
+    #ccreate items store file if it does not exist
+    Path(MY_ITEMS_STORE_FNAME).touch(exist_ok=True)
+
+
+    config = {}
     # try load config
     configfile = configparser.ConfigParser(interpolation=None)
     configfile.read(automation.config_fpath)
@@ -30,14 +41,30 @@ def run(automation: WebAutomation):
 
     driver = webdriver.Chrome(options=DEFAULT_BROWSER_OPTIONS)
     automation.set_driver(driver)
+    
+    # load my items store: items for which I have a record already (when each item was last renewed)    
+    stored_items = {}
+    with open(MY_ITEMS_STORE_FNAME, "r", encoding="utf-8") as f:
+        try:
+            stored_items = json.load(f)
+        except:
+            #no items stored yet
+            pass
 
-    while not automation.stop_event.is_set():
-        login(automation)
-        renew_ads(automation)
-        automation.driver_try_get(DEFAULT_URL)
+    while not automation.stop_event.is_set():        
+        
+        if check_need_renew(stored_items):
+            logger.debug("going to check my ads")
+            login(automation)
+            result = renew_ads(automation)
+            update_items_store(stored_items, result)                
+            automation.driver_try_get(DEFAULT_URL)
+        else:
+            logger.debug("will not check my ads this time")
+            
         sleep_s = random.uniform(config["MIN_SLEEP_S"], config["MAX_SLEEP_S"])
         logger.debug(
-            "going to sleep for {:.1f} s until next checking ads to renew".format(
+            "going home to sleep for {:.1f} s".format(
                 sleep_s
             )
         )

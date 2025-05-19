@@ -5,8 +5,12 @@ from skelbiu.utils import click_delay
 # this assumes we are already at MY_ADS_URL (redirected by default after logging in)
 def renew_ads(automation: WebAutomation):
 
+    result = {} #{item id: status_str}
+
     logger = automation.logger
     driver = automation.driver
+    
+    
 
     table = driver.find_element(By.ID, "adsList")
     rows = table.find_elements(By.TAG_NAME, "tr")
@@ -21,6 +25,7 @@ def renew_ads(automation: WebAutomation):
         inner = target.get_attribute("innerHTML").strip()
         if inner == "Atnaujintas":
             logger.debug(f"item with id {item_id} is already renewed.")
+            result[item_id] = {"status": "already_renewed"}
             continue
         elif inner == "Atnaujinti":
             logger.debug(f"will renew item with id {item_id}")
@@ -63,3 +68,8 @@ def renew_ads(automation: WebAutomation):
         target.click()
         logger.debug(f"item with id {item_id} renewed")
         click_delay()
+        result[item_id] = {"status": "renewed", "last_renewed": datetime.now().isoformat()}
+    
+    return result
+        
+        

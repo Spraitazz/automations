@@ -88,14 +88,7 @@ def respond_comments(
         )
         return
 
-    # this_elem.click()
-
     try:
-
-        # var el = document.getElementsByClassName("{this_elem.get_attribute("class")}");
-        # window.focus()
-        # if (el) el.focus();
-
         driver.execute_script(
             """
             try {
@@ -117,15 +110,33 @@ def respond_comments(
         By.XPATH, "//div[contains(@data-id, 'urn:li:activity')]"
     )
 
-    if len(activity_divs) < 2:
-        logger.warning(f"only {len(activity_divs)} activity divs found")
-        return
 
-    logger.debug(f"{len(activity_divs)} activity_divs visible")
+    logger.debug(f"{len(activity_divs)} posts visible")
 
     responded_count = num_responded
-    activity_div = random.choice(activity_divs)
-    # for activity_div in activity_divs[1:]:
+    
+    #
+    # respond only to "suggested" spam
+    #
+    activity_divs_suggested = []
+    for activity_div in activity_divs:
+        try:
+            suggested_span = activity_div.find_element(By.XPATH,
+                              './/span[contains(@class, "update-components-header__text-view")]')
+            if 'Suggested' in suggested_span.text.strip():
+                activity_divs_suggested.append(activity_div)
+        except:
+            continue
+    
+    if len(activity_divs_suggested) == 0:
+        logger.warning("could not find any 'Suggested' divs")
+        return respond_comments(
+            driver, num_responded=responded_count, responded_posts=responded_posts
+        )
+        
+    logger.debug(f"{len(activity_divs_suggested)} 'Suggested' posts visible")
+    
+    activity_div = random.choice(activity_divs_suggested)
 
     comment_btn = []
     try:
@@ -138,14 +149,12 @@ def respond_comments(
             By.XPATH, ".//button[@aria-label='Comment']"
         )
     except:
-        # break
         return respond_comments(
             driver, num_responded=responded_count, responded_posts=responded_posts
         )
 
     if len(comment_btn) != 1:
         logger.warning(f"comment btn has len: {len(comment_btn)}")
-        # continue
         return respond_comments(
             driver, num_responded=responded_count, responded_posts=responded_posts
         )
