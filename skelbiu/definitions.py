@@ -36,5 +36,7 @@ DEFAULT_LOAD_WAIT_TIME_S = 10
 # currently this is simply a dict with the unique item idx as keys and last updated
 # datetime (iso format) as values, stored in json format.
 #
-MY_ITEMS_STORE_FNAME = "my_items.json"
+
+THIS_DIR_PATH = Path(__file__).resolve().parent 
+MY_ITEMS_STORE_FPATH = THIS_DIR_PATH / "my_items.json"
 

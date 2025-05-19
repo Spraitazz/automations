@@ -13,14 +13,14 @@ if __name__ == "__main__":
 #                    (B): one of my items has not been renewed in more than 25h
 #                    (C): one of my items has an unknown last renewed datetime ("-")
 #
-# item store is json file in the same directory as this module called [MY_ITEMS_STORE_FNAME in definitions.py]
+# item store is json file at [MY_ITEMS_STORE_FPATH in definitions.py]
 #
 def run(automation: WebAutomation):
 
     logger = automation.logger
 
     #ccreate items store file if it does not exist
-    Path(MY_ITEMS_STORE_FNAME).touch(exist_ok=True)
+    Path(MY_ITEMS_STORE_FPATH).touch(exist_ok=True)
 
 
     config = {}
@@ -44,7 +44,7 @@ def run(automation: WebAutomation):
     
     # load my items store: items for which I have a record already (when each item was last renewed)    
     stored_items = {}
-    with open(MY_ITEMS_STORE_FNAME, "r", encoding="utf-8") as f:
+    with open(MY_ITEMS_STORE_FPATH, "r", encoding="utf-8") as f:
         try:
             stored_items = json.load(f)
         except:

@@ -73,5 +73,5 @@ def update_items_store(stored_items: dict, result: dict):
                 stored_items_cur[item_id] = stored_items[item_id]
             else:
                 stored_items_cur[item_id] = "-"
-    with open(MY_ITEMS_STORE_FNAME, "w", encoding="utf-8") as f:
+    with open(MY_ITEMS_STORE_FPATH, "w", encoding="utf-8") as f:
         json.dump(stored_items_cur, f)
