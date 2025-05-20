@@ -1,3 +1,22 @@
+"""
+linkedin/run.py
+
+This module contains the high-level functionality of the linkedin automation: 
+there are three main times to go to the site - morning (with x % chance),
+afternoon (with y % chance) and evening (with z % chance). During one visit
+to the site, the automation will perform a random number (N) of actions from
+the following list of actions: [comment under a post, accept connection]
+
+Functions:
+----------
+- run(automation: Automation):
+    start the persistent automation
+    
+Example:
+--------
+>>> from utils.data_processing import load_csv, clean_missing_values, normalize_columns
+>>> df = load_csv("data/my_dataset.csv")
+"""
 #
 #
 # Login, go to feed
@@ -8,13 +27,13 @@ from linkedin.definitions import *
 from linkedin.utils import (
     click_delay,
     launch_browser,
-    login,
-    respond_comments,
+    login,    
     send_unhandled_exception_email,
 )
+from linkedin.comment_posts import respond_comments
 from xvfbwrapper import Xvfb
 
-BOT_NAME = "linkedin"
+
 
 # setup logger to generate a file daily, keeping last 7 days backup
 logger = logging.getLogger("logger")
@@ -29,7 +48,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-DEFAULT_URL = "http://diedai.lt"
+
 
 
 def run():

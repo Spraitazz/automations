@@ -8,15 +8,29 @@ import random
 import uuid
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+    StaleElementReferenceException,
+    ElementClickInterceptedException,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from llm_server.external_utils import llm_request
+
+
+BOT_NAME = "linkedin"
+
+DEFAULT_URL = "http://diedai.lt"
+
+LOGIN_URL = "https://www.linkedin.com/login/"
+FEED_URL = "https://www.linkedin.com/feed/"
 
 #
 # TO DO: move to config
@@ -31,7 +45,7 @@ LOG_PATH = os.path.join(BASE_DIR, "logs/log")
 
 config_path = (
     Path.home() / "automation_configs" / "linkedin" / "config.ini"
-)  # os.path.join(BASE_DIR, 'config.ini')
+) 
 config = configparser.ConfigParser(interpolation=None)
 config.read(config_path)
 EMAIL = config["DEFAULT"]["EMAIL"]
@@ -42,8 +56,7 @@ LLM_TOP_K = int(config["DEFAULT"]["LLM_TOP_K"])
 LLM_TOP_P = float(config["DEFAULT"]["LLM_TOP_P"])
 LLM_REPEAT_PENALTY = float(config["DEFAULT"]["LLM_REPEAT_PENALTY"])
 
-LOGIN_URL = "https://www.linkedin.com/login"
-FEED_URL = "https://www.linkedin.com/feed"
+
 
 # set browser options
 DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()
