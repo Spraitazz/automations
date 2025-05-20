@@ -1,6 +1,8 @@
 
 **/logs/**
 
+skelbiu/my_items.json
+
 githubignore
 deployignore
 python_template.gitignore
