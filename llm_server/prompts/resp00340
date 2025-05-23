@@ -1,0 +1,4 @@
+<think>
+Okay, the user wants me to write a comment on this LinkedIn post about test coverage. The original post is criticizing the 70% test coverage rule, pointing out that it led to bad tests, like testing private methods and just chasing numbers instead of quality. The user wants a response that's technically sound, concise, and has that sly superiority without being rude.
+
+First, I need to acknowledge the points made. The original post says that test coverage as a goal is bad.

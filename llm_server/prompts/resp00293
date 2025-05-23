@@ -1,0 +1,25 @@
+At Diedai, we've been experimenting with serverless architectures to improve scalability and reduce costs. Today I want to share a critical lesson: not all workloads are created equal.
+
+Our initial approach was naive — assume that moving everything "serverless" is the panacea for every problem in software development. It isn't. There’s nuance, there's overhead, and above all—there must be an understanding of where these functions will live post-deployment to ensure security remains a priority at each step.
+
+One particular use case stands out: our real-time alerting system. Initially we thought serverless was the obvious choice for such dynamic functionality. We deployed a handful of Lambda functions that fired off alerts whenever data breaches or unusual activity occurred within our systems and external ecosystems.
+
+But then, during thorough security audits and red team exercises, cracks started to show up. Our lambdas had become complex state machines, managing subscriptions across multiple cloud services with intricate inter-dependencies.
+
+One fatal flaw was in how we were handling secret management—hardcoded secrets exposed sensitive data on failure paths that shouldn’t be possible if we designed for a fully secure stack from the start. The second critical mistake? Lack of comprehensive logging and monitoring made it challenging to trace any unauthorized access, slow or buggy behavior post-deployment.
+
+These are real-world problems faced by teams when moving to cloud-native architectures—lessons that might resonate with others exploring similar paths at their own organizations.
+
+In summary:
+
+1. Understand the exact environment where your serverless functions will live before choosing this approach.
+2. Embrace complexity and build robust mechanisms for state management, including secure secrets handling from day one.
+3. Implement thorough logging to ensure full traceability in every operation that affects system integrity or user data.
+4. Test comprehensively against realistic security threats; don’t just assume everything will work out-of-the-box.
+
+Remember: cloud-native doesn't mean "easy." It requires a new mindset, rigorous attention to detail and continuous improvement driven by best practices adapted for the cloud era.
+
+At Diedai, we're re-evaluating our design principles as a team. Our mission is clear—safeguarding elderly care technology—and we won’t settle for anything less than absolute security when it comes to protecting human lives with digital health solutions.
+#cloudnative #serverless #devsecops #securebydesign
+
+This post will educate and inspire other founders or CTO's in your network on the intricacies of moving workloads into cloud-native

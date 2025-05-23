@@ -1,13 +1,12 @@
 
 from linkedin.definitions import *
 from linkedin.utils import click_delay, random_scroll, wait_feed_loaded, remove_non_bmp
-from linkedin.prompts import *
-
+from linkedin.prompts_qwen3 import try_generate_comment, GenerateError
 
 
 
 def filter_activity_suggested(activity_divs: list[WebElement]):
-"""Filter out only feed activity divs for activity which is "Suggested" for you"""
+    """Filter out only feed activity divs for activity which is "Suggested" for you"""
 
     activity_divs_suggested = []
     
@@ -45,7 +44,7 @@ def try_focus(driver, logger, this_elem):
     
     
 def get_post_text(activity_div: WebElement):
-"""Returns the post text, without non-bmp characters, given the activity div"""
+    """Returns the post text, without non-bmp characters, given the activity div"""
 
     text_div = activity_div.find_element(
         By.XPATH, ".//div[contains(@class, 'feed-shared-inline-show-more-text')]"
@@ -54,11 +53,14 @@ def get_post_text(activity_div: WebElement):
     post_text = text_span.text.strip()
     post_text_cleaned = remove_non_bmp(post_text)
     return post_text_cleaned
+    
 
 #
+# TO DO: need function comment_on(activity_div: WebElement)
+#
 # TO DO: in case I go to different pages on linkedn, here I should:
-# 1. Go to feed url
-# 2. wait (max 10s?) for activity divs to be visible
+#           1. Go to feed url
+#           2. wait (max 10s?) for activity divs to be visible
 #
 #
 # IMPORTANT: num_responded only counts in between sleep periods, while responded_posts ensures we dont respond to duplicates
@@ -71,7 +73,6 @@ def respond_comments(
 
     logger = logging.getLogger("logger")   
     
-    #this_elem = None
     try:
         wait_feed_loaded(driver)  
     except:
@@ -86,10 +87,7 @@ def respond_comments(
         By.XPATH, "//div[contains(@data-id, 'urn:li:activity')]"
     )
 
-
-    logger.debug(f"{len(activity_divs)} posts visible")
-
-        
+    logger.debug(f"{len(activity_divs)} posts visible")        
     # respond only to "suggested" spam    
     activity_divs_suggested = filter_activity_suggested(activity_divs)
     
@@ -99,15 +97,16 @@ def respond_comments(
             driver, num_responded=responded_count, responded_posts=responded_posts
         )
         
-    logger.debug(f"{len(activity_divs_suggested)} 'Suggested' posts visible")
-    #
-    # pick at random a post to comment on
-    #
+    logger.debug(f"{len(activity_divs_suggested)} 'Suggested' posts visible")    
+    # pick at random a post to comment on    
     activity_div = random.choice(activity_divs_suggested)
 
     #
-    # try find "Comment" button
+    # TO DO: need function comment_on(activity_div: WebElement)
     #
+
+    
+    # try find "Comment" button    
     comment_btn = []
     try:
         comment_spans = activity_div.find_elements(
@@ -136,8 +135,6 @@ def respond_comments(
     # ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
 
 
-
-
     # can comment: get text, feed to llm, get comment
     post_text_cleaned = ""
     try:
@@ -163,14 +160,12 @@ def respond_comments(
     # TO DO: wait until loaded
     #
     try:
-        # comment_btn[0].click()
         ActionChains(driver).move_to_element(comment_btn[0]).pause(
             random.uniform(0.5, 1.5)
         ).click().perform()
         click_delay()
     except:
         logger.exception("")
-        # continue
         return respond_comments(
             driver, num_responded=responded_count, responded_posts=responded_posts
         )
@@ -182,25 +177,11 @@ def respond_comments(
         )
         first_p = comment_div.find_element(By.XPATH, "./p[1]")
 
-        prompt = random.choice(PROMPTS_FMT).format(post_text)
+        my_comment = try_generate_comment(post_text_cleaned, logger)
 
-        logger.debug(f"will submit llm request with prompt:\n{prompt}")
-        response_status, response_text, num_tries = llm_request(
-            prompt, LLM_PARAMS, logger
-        )
-        if response_status != 0:
-            logger.warning(f"resp status: {response_status}")
-            # continue
-            return respond_comments(
-                driver, num_responded=responded_count, responded_posts=responded_posts
-            )
+        first_p.send_keys(my_comment)
 
-        cleaned_response_text = remove_non_bmp(response_text)
-        cleaned_response_text = cleaned_response_text.replace("\n", " ")
-
-        first_p.send_keys(cleaned_response_text)
         click_delay()
-
         submit_comment_btn = WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
             EC.presence_of_element_located(
                 (
@@ -209,9 +190,7 @@ def respond_comments(
                 )
             )
         )
-        logger.debug(f"Commenting response:\n{cleaned_response_text}")
-
-        # submit_comment_btn.click()
+        logger.debug(f"Commenting response:\n{my_comment}")
         ActionChains(driver).move_to_element(submit_comment_btn).pause(
             random.uniform(0.5, 1.5)
         ).click().perform()
@@ -221,13 +200,12 @@ def respond_comments(
 
     except NoSuchElementException:
         logger.warning("add comment element not found")
-        # continue
+    except GenerateError:
+        #retry?
+        logger.exception("")
     except:
         logger.exception("")
-        # continue
-
-        # if responded_count == NUM_COMMENTS_ONE_GO:
-        # break
+ 
 
     if responded_count < NUM_COMMENTS_ONE_GO:
         logger.debug("Have to refresh")

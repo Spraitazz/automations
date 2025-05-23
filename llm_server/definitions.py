@@ -1,75 +1,87 @@
 import os
+from pathlib import Path
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import typing
+from typing import Tuple
+import threading
 from pydantic import BaseModel, Field, conint, confloat, ValidationError
 from enum import IntEnum
-from threading import Thread
+import threading
 from collections import deque
 import uuid
 import requests
 import time
 from datetime import datetime
-from llama_cpp import Llama
+import llama_cpp
+import asyncio
+import uvicorn
 import fastapi
 from fastapi import FastAPI, HTTPException
 import pandas as pd
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = Path(__file__).resolve().parent
 
-#
-# TO DO: automations toolkit should handle logs
-#
-LOG_PATH = os.path.join(BASE_DIR, "logs/log")
+LLM_CONFIG_PATH = Path.home() / "automation_configs" / "llm_server" / "config.ini"
 
+LOGGER_NAME = "llm_server"
+
+MODEL_NAME = "Qwen3-14B-Q6_K"
+
+LLM_GGUF_PATH = BASE_DIR / "llm_ggufs" / "Qwen3-14B-Q6_K.gguf"
+NUM_THREADS_LLM = 8
+CONTEXT_LEN_LLM = 2048
+
+LLM_SERVER_HOST = "127.0.0.1"
+LLM_SERVER_PORT = 8000
+LLM_SERVER_BASE_URL = f"{LLM_SERVER_HOST}:{LLM_SERVER_PORT}"
 
 # set this to False to not save prompt/response pairs
 SAVE_WORK = True
 # where to store prompts (and responses)
-PROMPT_DIR = os.path.join(BASE_DIR, "prompts")
+PROMPT_DIR = BASE_DIR / "prompts"
 # where to store prompt info - request id (links to prompts dir) and llm params
-PROMPT_STORE_FPATH = os.path.join(BASE_DIR, "prompt_info.csv")
+PROMPT_STORE_FPATH = BASE_DIR / "prompt_info.csv"
 
 # @app.post("/submit/")
 LLM_API_SUBMIT_URL = "http://localhost:8000/submit"
 # @app.get("/result/{job_id}")
 LLM_API_RESULT_URL = "http://localhost:8000/result"
 
-# https://www.modelscope.cn/models/qwen/Qwen2.5-7B-Instruct-GGUF
-LLM_GGUF_FPATH = os.path.join(BASE_DIR, "llm_ggufs", "qwen2.5-7b-instruct-q6_k.gguf")
-MODEL_NAME = "qwen2.5-7b-instruct-q6_k"
-
-NUM_THREADS_LLM = 8
-CONTEXT_LEN_LLM = 2048
-
 NUM_JOBS_MAX = 3
-NUM_TOKENS_PROMPT_MAX = 1024
+NUM_TOKENS_PROMPT_MAX = 2048
 LEN_PROMPT_MAX = NUM_TOKENS_PROMPT_MAX * 5
 
 NUM_MAX_TRIES_GENERATE_DEFAULT = 2
 
+# default values to use unless the request specifies either
 MAX_TOKENS_MIN = 10
 MAX_TOKENS_MAX = 512
+MAX_TOKENS_DEFAULT = 100
 
 TEMPERATURE_MIN = 0.1
 TEMPERATURE_MAX = 10.0
+TEMPERATURE_DEFAULT = 0.9
 
 TOP_K_MIN = 5
 TOP_K_MAX = 200
+TOP_K_DEFAULT = 50
 
 TOP_P_MIN = 0.1
 TOP_P_MAX = 1.0
+TOP_P_DEFAULT = 0.9
 
 REPEAT_PENALTY_MIN = 0.1
 REPEAT_PENALTY_MAX = 2.0
-
-# default values to use unless the request specifies either
-MAX_TOKENS_DEFAULT = 100
-TEMPERATURE_DEFAULT = 0.9
-TOP_K_DEFAULT = 50
-TOP_P_DEFAULT = 0.9
 REPEAT_PENALTY_DEFAULT = 1.2
+
+
+job_queue = deque()
+job_states = {}  # {str uuid: JobStates}
+job_history = {}  # {str uuid: JobRequest}
+# {str uuid: dict(['status'] = JobResultStatus, ["num_tries"]: int, ["response"]: str)}
+job_results = {} 
 
 
 class LLMParams(BaseModel):
@@ -86,6 +98,7 @@ class JobRequest(BaseModel):
     job_id: str
     prompt: str = Field(min_length=1, max_length=LEN_PROMPT_MAX)
     llm_params: LLMParams = LLMParams()
+    num_tries_max: conint(ge=1, le=3) = 1
 
 
 class JobStates(IntEnum):
@@ -103,3 +116,35 @@ class JobSubmitStatus(IntEnum):
 class JobResultStatus(IntEnum):
     SUCCESS = 0
     FAILED = -1
+   
+
+class ServerThread(threading.Thread):
+    def __init__(self, config: uvicorn.Config):
+        super().__init__(daemon=True)
+        self.config = config
+        self.server = uvicorn.Server(config=self.config)
+
+    def run(self):
+        asyncio.run(self.server.serve())
+
+    def shutdown(self):
+        self.server.should_exit = True
+        
+        
+class StoppableThread:
+    def __init__(self, target: callable = lambda: None, args=(), daemon=True):
+        self._stop_event = threading.Event()
+        args_with_stopevent = list(args)
+        args_with_stopevent.append(self._stop_event)
+        args_with_stopevent = tuple(args_with_stopevent)
+        self._thread = threading.Thread(target=target, args=args_with_stopevent, daemon=daemon)
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        self._stop_event.set()
+        #self._thread.join()
+    
+
+    

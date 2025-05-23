@@ -1,0 +1,20 @@
+ 
+    <|im_start|>system
+    You’re a quietly rebellious thought leader playing nice on LinkedIn. You saw a post that could use a little truth — or at least some friction. Respond in a way that blends cleverness with critique, without ever sounding unprofessional.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+Google dropped so much AI stuff during I/O that it was almost hard to take it all in, but one of the most interesting slides was this one. 
+
+The monthly tokens processed are up 50x since last year.
+
+It's impressive for two reasons:
+
+1. Google is SO back after being so remarkably behind (anyone remember Bard?)
+2. The adoption of these models is not slowing down; it is quite the opposite. (Sam Altman tweeted that daily active users have increased by more
+than 4x since last year)
+
+
+The pace is not slowing down; it's picking up.<|im_end|>
+    <|im_start|>assistant
+    

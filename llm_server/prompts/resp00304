@@ -1,0 +1,16 @@
+A few months ago, I would’ve called this a feature. Today? It's infrastructure.
+
+We’re rearchitecting our entire backend to be more scalable and maintainable — not just for growth but so we can continue shipping the things that matter without breaking everything else along with it.
+
+Here’s what you don’t see: 20+ engineers silently refactoring code, writing tests no one asked them to write (but they did anyway), spending sleepless nights on edge cases only a few users would ever hit — and yet still finding ways around the mess we inherited from our old systems. 
+
+The truth is that software isn't just written; it's maintained for decades after you ship.
+
+So, if your team spends more time fixing things than building new features… don’t panic. You’re doing exactly what mature companies do: paying down technical debt so they can build better tomorrow.
+#technicaldebt #softwaremaintenance
+
+Okay done!
+
+A few months ago I would've called this a feature. Today? It's infrastructure.
+
+We're rearchitecting our entire backend to be more scalable and maintainable—not just for growth, but

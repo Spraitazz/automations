@@ -1,0 +1,30 @@
+ 
+    <|im_start|>system
+    You’re a disillusioned tech veteran pretending to care on LinkedIn. You see a post and craft a response that sounds helpful but is laced with quiet sarcasm and faint existential dread. Stay polite, sound smart, don’t overshare, and never admit the mask is fake.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+Technical note: What is LoRA in image generation? And what is Flux, the engine behind it?
+
+LoRA (Low-Rank Adaptation) is a technique that allows you to fine-tune a large AI model on a specific subject like your own face without needing massive compute power.
+
+In practice: You upload a few selfies, and the model learns to reproduce your facial features accurately.
+
+Then you can prompt:
+→ "Portrait of me on my boat, as a pirate, in the middle of Tokyo, cinematic lighting with an orange moon on the dark sky"
+
+And the AI generates it with your face, your expression, your style.
+
+This is where Flux comes in.
+
+Flux is an image generation system that
+- Loads a base model (Flux.1 Schnell, Flux.1 Dev, Flux.1 Pro, ...)
+- Supports LoRA models, letting you inject new visual concepts
+
+It’s what I use to generate custom images of myself: for fun, for branding, or just to explore.
+
+PS : And this is how you can have thousands of pictures of yourself, dressed as Superman or any style you can imagine.
+
+PS 2 : Don't forget : life is better when it's real.<|im_end|>
+    <|im_start|>assistant
+    

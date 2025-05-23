@@ -1,0 +1,72 @@
+
+Requirements:
+
+1. glibc >=2.32
+2. openmp (WHICH VERSION?)
+3. Anything else??
+
+
+Step 1: get llm library
+
+llama-cpp (currently using 0.3.8) (pip install llama-cpp-python)
+
+--------------------------------------
+for ubuntu 20.04 LTS
+
+export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+conda install -c conda-forge libgomp
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+export CMAKE_ARGS="-DLLAMA_BLAS=OFF -DLLAMA_OPENBLAS=OFF"
+pip install --force-reinstall --no-cache-dir llama-cpp-python
+--------------------------------------
+
+Step 2: get llm weights
+
+currently using Qwen2.5-7B-Instruct-GGUF (q6_k quantised) from https://www.modelscope.cn/models/qwen/Qwen2.5-7B-Instruct-GGUF
+as an example, which works sufficiently well for automations not demanding quality, such as linkedin posting
+link to direct download the gguf file:
+https://www.modelscope.cn/models/qwen/Qwen2.5-7B-Instruct-GGUF/resolve/master/qwen2.5-7b-instruct-q6_k.gguf
+
+put the file in llm_server/llm_ggufs
+
+AND MODIFY WHERE TO LINK TO CORRECT FILE?
+
+
+* Tests
+
+Check llama-cpp installed ok
+    ldd $(find $(python -c "import llama_cpp; print(llama_cpp.__path__[0])") -name "*.so")
+
+---------------------------------------
+pip install uvicorn
+pip install fastapi
+pip install pandas
+
+---------------------------------------
+EXTRAS
+
+--------------------
+run on its own:
+
+
+from inside: uvicorn run:app --host 0.0.0.0 --port 8000
+from outside: python -m uvicorn llm_server.run:app --host 0.0.0.0 --port 8000
+
+-----------------------
+for merging llm ggufs:
+
+
+llama-gguf-split --merge <first-split-file-path> <merged-file-path>
+example: 
+llama-gguf-split --merge qwen2.5-7b-instruct-q5_k_m-00001-of-00002.gguf qwen2.5-7b-instruct-q5_k_m.gguf
+
+
+from llama-cpp: 
+https://github.com/ggml-org/llama.cpp/blob/master/docs/install.md
+
+using nix:
+nix-env --file '<nixpkgs>' --install --attr llama-cpp
+
+
+
+

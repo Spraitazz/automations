@@ -21,9 +21,12 @@ def login(automation: WebAutomation):
         return
 
     # reject cookies first
-    target = driver.find_element(By.ID, "onetrust-reject-all-handler")
-    target.click()
-    click_delay()
+    try:
+        target = driver.find_element(By.ID, "onetrust-reject-all-handler")
+        target.click()
+        click_delay()
+    except:
+        logger.warning("did not need to reject cookies")
 
     username_inp = driver.find_element(By.ID, "nick-input")
     username_inp.clear()

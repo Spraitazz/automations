@@ -10,6 +10,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import (
@@ -22,7 +23,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from llm_server.external_utils import llm_request
+
+from llm_server.external_utils import llm_request, LLMRequestResult, LLMRequestResultStatus
 
 
 BOT_NAME = "linkedin"
@@ -50,12 +52,22 @@ config = configparser.ConfigParser(interpolation=None)
 config.read(config_path)
 EMAIL = config["DEFAULT"]["EMAIL"]
 PASS = config["DEFAULT"]["PASS"].strip('"')
-LLM_MAX_TOKENS = int(config["DEFAULT"]["LLM_MAX_TOKENS"])
-LLM_TEMPERATURE = float(config["DEFAULT"]["LLM_TEMPERATURE"])
-LLM_TOP_K = int(config["DEFAULT"]["LLM_TOP_K"])
-LLM_TOP_P = float(config["DEFAULT"]["LLM_TOP_P"])
-LLM_REPEAT_PENALTY = float(config["DEFAULT"]["LLM_REPEAT_PENALTY"])
 
+LLM_PARAMS_COMMENTS = {
+    "max_tokens": int(config["COMMENTS"]["LLM_MAX_TOKENS"]),
+    "temperature": float(config["COMMENTS"]["LLM_TEMPERATURE"]),
+    "top_k": int(config["COMMENTS"]["LLM_TOP_K"]),
+    "top_p": float(config["COMMENTS"]["LLM_TOP_P"]),
+    "repeat_penalty": float(config["COMMENTS"]["LLM_REPEAT_PENALTY"]),
+}
+
+LLM_PARAMS_POSTS = {
+    "max_tokens": int(config["POSTS"]["LLM_MAX_TOKENS"]),
+    "temperature": float(config["POSTS"]["LLM_TEMPERATURE"]),
+    "top_k": int(config["POSTS"]["LLM_TOP_K"]),
+    "top_p": float(config["POSTS"]["LLM_TOP_P"]),
+    "repeat_penalty": float(config["POSTS"]["LLM_REPEAT_PENALTY"]),
+}
 
 
 # set browser options
@@ -67,14 +79,8 @@ DEFAULT_BROWSER_OPTIONS.add_argument("--incognito")
 NUM_COMMENTS_ONE_GO = 1
 # and sleep for random (uniform) time between
 MIN_SLEEP_S = 10.0 * 60.0  # 15 min
-MAX_SLEEP_S = 30.0 * 60.0  # 30 min
+MAX_SLEEP_S = 20.0 * 60.0  # 30 min
 
 DEFAULT_LOAD_WAIT_TIME_S = 10
 
-LLM_PARAMS = {
-    "max_tokens": LLM_MAX_TOKENS,
-    "temperature": LLM_TEMPERATURE,
-    "top_k": LLM_TOP_K,
-    "top_p": LLM_TOP_P,
-    "repeat_penalty": LLM_REPEAT_PENALTY,
-}
+

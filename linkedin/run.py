@@ -5,7 +5,11 @@ This module contains the high-level functionality of the linkedin automation:
 there are three main times to go to the site - morning (with x % chance),
 afternoon (with y % chance) and evening (with z % chance). During one visit
 to the site, the automation will perform a random number (N) of actions from
-the following list of actions: [comment under a post, accept connection]
+the following list of actions: 
+
+* comment under a post
+* TO DO: make a post
+* TO DO: accept connection
 
 Functions:
 ----------
@@ -30,7 +34,8 @@ from linkedin.utils import (
     login,    
     send_unhandled_exception_email,
 )
-from linkedin.comment_posts import respond_comments
+from linkedin.comment_posts import respond_comments #comment_random_post
+#from linkedin.posts import make_post
 from xvfbwrapper import Xvfb
 
 
@@ -48,11 +53,56 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+"""
+#
+# uptimes currently 1h each, expecting to respond to 2-5 posts
+# and maybe make a post
+#
+# {uptime_name: hours (from, to)} in 24h format
+uptimes = {
+"morning": (8, 9),
+"afternoon": (13, 14),
+"evening": (18, 19)
+}
+
+num_posts_per_day = 1
+
+num_posts_today = 0
+
+morning_post_chance = 0.2
+afternoon_post_chance = 0.3
+evening_post_chance = 0.5
+
+
+on start:
+
+find next session
+sleep until next session
+
+session starts:
+
+in 1h want to respond to 2-5 posts, and make a post
+
+go to feed
+scroll, "read", scroll
+respond comment
+scroll, "read", scroll
+
+
+
+possible_actions = [comment_random_post] #scroll_feed #make_post
+
+"""
 
 
 
 def run():
-
+    """This linkedin automation will work at normal times - morning,
+    afternoon, or evening. It waits for the next working period,
+    then logs in (if not logged in already), goes to your feed,
+    and either comments on a random number of random posts,
+    or makes a single post, or both."""
+    
     try:
 
         logger.debug("linkedin bot started")

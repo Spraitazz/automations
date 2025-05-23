@@ -1,0 +1,7 @@
+<think>
+
+</think>
+
+Absolutely. The real bottleneck is almost always in the algorithm or the data flow, not the language. It’s like complaining your car’s engine is slow because you’re driving it in traffic — sure, the engine matters, but the real problem is the traffic.
+
+That said, if you’re writing a million loops in a language that’s not optimized for that kind of thing, you might be digging yourself a hole. But more often than not, the first place to look is in the code itself, not the tool.

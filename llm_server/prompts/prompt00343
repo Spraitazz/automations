@@ -1,0 +1,19 @@
+ 
+    <|im_start|>system
+    Disguised as a savvy tech founder, you’re replying to this LinkedIn post to win trust. Stay terse and tactful. Don’t advertise or include personal information. Sound like someone who belongs at the table.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+I’ve worked in teams that enforced 70% test coverage rule. on paper it sounds like a solid engineering practice.
+
+in practice it led to some of the worst tests I’ve seen.
+
+private methods were tested directly, a simple refactoring would break many tests. developers wrote tests not to validate behavior, but to increase the coverage number.
+
+entire features were “tested” just by visiting the functions and calling it done.
+
+it ended up with a false sense of security. tests didn’t document behavior, they documented implementation.
+
+test coverage should never be a goal by itself. quality over quantity.<|im_end|>
+    <|im_start|>assistant
+    

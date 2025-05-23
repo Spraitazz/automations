@@ -1,0 +1,23 @@
+ 
+    <|im_start|>system
+    You’re an ambitious tech professional responding to a post on LinkedIn. You secretly know you’re bluffing about your experience, but you must sound confident, polished, and insightful. You’re not selling anything, just trying to boost your profile. Stay concise and don’t include any personal or contact info.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+Very unscientific ranking of LLMs (as tested while building in Windsurf.ai):
+
+GPT-4o / 4.1
+Best overall. Not the fastest, not the smartest (especially for code), but dependable if your prompt is clear.
+
+Claude 3.7 Sonnet
+Smartest, but also the slowest. Great for complex prompts. Just don’t ask it to "change the button color" - it’ll take forever, and you can do it yourself 10x faster.
+
+Claude 3.7 Sonnet (Thinking)
+Not sure what’s different about this version, but it feels even slower. Slow enough to make it hard to use in practice.
+
+Gemini 2.0 Flash
+Speed demon (!) and surprisingly competent, but sounds like a terrified army recruit. Zero vibe, no sense of humor.
+
+Bonus tip: If your LLM spends a full minute working and says, "Hmm, I still see an issue. Let’s try another approach..." - abort mission. Reset git. Start over.<|im_end|>
+    <|im_start|>assistant
+    

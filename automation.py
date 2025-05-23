@@ -1,7 +1,15 @@
+#
+#
+# TO DO: split off WebAutomation, and move selenium stuff from definitions.py there
+#
+#
+
+
+
 import re
 
 from definitions import *
-
+from utils import init_default_logger
 
 def interruptable_sleep(event: threading.Event, timeout: float, logger: logging.Logger):
     start_time = time.time()
@@ -72,51 +80,27 @@ class Automation:
 
     def _run_and_cleanup(self, logger: logging.Logger):
         self.run()
-        # not expecting to return
         logger.debug(f"{self.name} stopped by return from run func")
         self.cleanup(logger)
 
     def _on_exception(self, logger: logging.Logger):
-        # send email, then restart
+        """send exception email, wait 60 seconds, then restart"""
         logger.exception("")
         logger.debug(f"sending unhandled exception email and restarting {self.name}")
         self.cleanup(logger)
         send_unhandled_exception_email(self.name)
-        time.sleep(10.0)
+        time.sleep(60.0)
         self.email_exception_handling_wrapper(logger)
 
     def email_exception_handling_wrapper(self, logger: logging.Logger):
         try:
             self._run_and_cleanup(logger)
         except:
-            self._on_exception(logger)
-            """
-            # send email, then restart
-            logger.exception("")
-            logger.debug(
-                f"sending unhandled exception email and restarting {self.name}"
-            )
-            self.cleanup(logger)
-            send_unhandled_exception_email(self.name)
-            self.email_exception_handling_wrapper(logger)
-            """
+            self._on_exception(logger)     
 
     def start(self, controller_logger):
 
-        logs_folder_path = os.path.join(BASE_DIR, "logs", self.name)
-        if not os.path.exists(logs_folder_path):
-            os.makedirs(logs_folder_path)
-
-        log_path = os.path.join(logs_folder_path, "log")
-        logger = logging.getLogger(f"{self.name}_logger")
-        logger.setLevel(LOG_LEVEL_DEFAULT)
-        handler = TimedRotatingFileHandler(
-            log_path, when="midnight", backupCount=LOG_NUM_DAYS_BACKUP_DEFAULT
-        )
-        handler.suffix = LOG_HANDLER_SUFFIX_DEFAULT
-        handler.setLevel(LOG_LEVEL_DEFAULT)
-        handler.setFormatter(LOG_FORMATTER_DEFAULT)
-        logger.addHandler(handler)
+        logger, logs_folder_path = init_default_logger(self.name)
 
         self.logs_folder_path = logs_folder_path
         self.logger = logger
@@ -159,6 +143,8 @@ class WebAutomation(Automation):
         try:
             if self.driver is not None:
                 self.driver.quit()
+            else:
+                logger.error("not expecting to be here")
         except:
             logger.exception("")
         finally:
@@ -190,8 +176,6 @@ class WebAutomation(Automation):
             elem.click()
             return True
         except ElementClickInterceptedException as e:
-            # Click intercepted
-            pass
             # Try to extract the intercepting element
             match = re.search(r"Other element would receive the click: (.+?)\n", str(e))
             if match:
@@ -247,13 +231,4 @@ class WebAutomation(Automation):
                 self._run_and_cleanup(logger)
         except:
             self._on_exception(logger)
-            """
-            # send email, then restart
-            logger.exception("")
-            logger.debug(
-                f"sending unhandled exception email and restarting {self.name}"
-            )
-            self.cleanup(logger)
-            send_unhandled_exception_email(self.name)
-            self.email_exception_handling_wrapper(logger)
-            """
+      

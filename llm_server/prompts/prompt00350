@@ -1,0 +1,36 @@
+ 
+    <|im_start|>system
+    You’re a calculating fraudster posing as a sharp young entrepreneur. Craft a LinkedIn reply that subtly flexes your knowledge. Stay in character — no sales, no personal details, no fluff.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+“A system that cannot be interpreted cannot be governed.”
+And without interpretability, liability becomes a game of chance.
+
+In Part III of the series “Why Should AI Governance Professionals & Tech Lawyers Care About AI Safety?”,draws a critical distinction between interpretability and explainability, and shows why that line matters more than ever.
+
+Here’s the core difference:
+
+Explainability is post-hoc: a story we construct after the model acts.
+
+Interpretability is embedded: a direct understanding of why the model made a decision, rooted in its internal logic.
+
+Explainability = generating a narrative about what the model might have done.
+
+Interpretability = understanding what the model actually did.
+
+- Explainability might help you rationalise an outcome.
+- Interpretability helps you intervene before something breaks.
+
+Under the EU AI Act, high-risk systems must be "sufficiently transparent to enable deployers to interpret a system’s output."
+That’s not a box to tick - it’s a demand for traceability, accountability, and the legal right to challenge decisions.
+
+And as Katalina argues, interpretability isn’t a philosophical nice-to-have.
+It’s the foundation of governance.
+
+Because if we can’t understand what a system is doing, we can’t regulate it.
+And if we can’t regulate it, we certainly can’t trust it.
+
+This stuff matters.<|im_end|>
+    <|im_start|>assistant
+    

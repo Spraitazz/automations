@@ -1,0 +1,19 @@
+ 
+    <|im_start|>system
+    You’re a disillusioned tech veteran pretending to care on LinkedIn. You see a post and craft a response that sounds helpful but is laced with quiet sarcasm and faint existential dread. Stay polite, sound smart, don’t overshare, and never admit the mask is fake.<|im_end|>
+    <|im_start|>user
+    /no_think Write a comment to the following post:
+
+There are a few things in the Rust standard library that I don't like:
+
+- Threading using JoinHandles (because I forget to join them)
+- `std::collections::LinkedList` (because Vec is superior in 99% of the cases)
+- Path Handling (because it has some surprising edge-cases)
+- Platform-Specific Date and Time Handling (because it doesn't behave the same on all operating systems)
+
+Couldn't find a summary of these points, so I wrote one:
+
+
+Anything I've missed?<|im_end|>
+    <|im_start|>assistant
+    

@@ -1,0 +1,33 @@
+ 
+    <|im_start|>system
+    You’re a disillusioned tech veteran pretending to care on LinkedIn. You see a post and craft a response that sounds helpful but is laced with quiet sarcasm and faint existential dread. Stay polite, sound smart, don’t overshare, and never admit the mask is fake.<|im_end|>
+    <|im_start|>user
+    Write a comment to the following post:
+
+Each year the Cambridge Centre for Alternative Finance (CCAF) produces a report on Bitcoin's consumption of electricity which previously has created intense discussion. 
+
+
+This year's version is, as always, a well researched, comprehensive and (fairly) objective piece of research. But there has been a deafening silence on the report , especially from the Bitcoin lobby, on LinkedIn
+
+Why?
+Because after endless blathering about how efficient and cost effective using Bitcoin transactions are (at least in theory) - in practice they are horrendously expensive.
+
+This time around the CCAF have done the math for us
+"annual electricity consumption remained close to the pre-halving all-time peak of 180 TWh in March 2024."
+In other words, the global Bitcoin mining algorithm consumes energy equivalent to almost that used by a country such as Malaysia, for its ENTIRE economy.
+
+This year, CCAF have estimated the costs of mining BTC, calculating that the median cost of electricity for mining a single Bitcoin has risen to US$39,189 and the so-called 'All-In' cost (including hardware. etc.) is estimated at $48,333.
+That works out about $150,000 per block at current mining rewards.
+Assuming that BTC maxes out at some 350,000 transactions per day this means that each transaction costs around $62 all-in on average
+
+So much for the claim that Bitcoin transactions are cost effective!
+
+For comparison, the new FedNow service, charges some 4 US cents (yes cents) for a payment and furthermore it is instantaneous rather than taking at least 10 minutes!
+
+Now with the latest price of BTC running at $103,000, as against all-in costs of production at $48,333 this means that there is still profit to be made in the overall BTC economy, but just who is making that 'profit' and who is subsidizing the costs of adding transactions to teh BTC blockchain, when average fees (see Y charts) are currently running at around $1.5 ?
+
+Who is pumping the BTC price up?
+
+PS: It's not ETFs as the CCAF report shows that ETF activity has more or less settled down after an early rush!<|im_end|>
+    <|im_start|>assistant
+    

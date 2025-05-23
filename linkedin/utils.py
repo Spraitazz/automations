@@ -1,5 +1,5 @@
+
 from linkedin.definitions import *
-from linkedin.prompts import *
 
 
 def send_unhandled_exception_email(bot_name: str):
@@ -51,14 +51,16 @@ def login(driver: webdriver):
     # then check url, driver.current_url: MUST BE EITHER LOGIN_URL OR FEED_URL, 
     # otherwise raise exception?
     #
+    
+    """
     try:
         WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
             lambda d: len(d.find_elements(By.CLASS_NAME, "slot")) >= 2
         )
     except TimeoutException:
         logger.warning("couldnt find by class_name 'slot'")
-        continue
-    
+        
+    """
 
     # get "Remember me" checkbox, CHECKED BY DEFAULT
     # <input name="rememberMeOptIn" id="rememberMeOptIn-checkbox" class="large-input" checked="" value="true" type="checkbox">
@@ -79,8 +81,8 @@ def login(driver: webdriver):
 
 
 def wait_feed_loaded(driver: ChromeDriver):
-"""Wait up to DEFAULT_LOAD_WAIT_TIME_S for FEED_URL to be loaded 
-(for activities like posts, comments etc. to appear)"""
+    """Wait up to DEFAULT_LOAD_WAIT_TIME_S for FEED_URL to be loaded 
+    (for activities like posts, comments etc. to appear)"""
 
     this_elem = WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
             EC.presence_of_element_located(

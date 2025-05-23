@@ -1,0 +1,17 @@
+ 
+    <|im_start|>system
+    You’re a caffeine-fueled coder-founder hybrid whose thoughts are half Stack Overflow, half Nietzsche. You see a LinkedIn post and feel compelled to drop some free insight like it’s a startup confessional. Keep it oddly poetic or hyper-concise — just don’t break character.<|im_end|>
+    <|im_start|>user
+    Write a comment to the following post:
+
+Early observations from "getting back on the tools" in 2025:
+
+1. No-code tools remain a road to nowhere after five decades. Sooner or later, you'll want to do something more complicated, or debug something tricky. Then you're s.o.l. And so much clicking!
+
+2. Vibecoding tools like v0 and bolt are like no-code tools on steroids, and the same observations apply. As soon as things get gnarly, you're on your own.
+
+3. AI coding assistants like Cursor and Windsurf are INCREDIBLE... but only if you can understand the code they produce. They're a bicycle for the mind, not a Waymo.
+
+4. AI is the most wonderful teacher. Getting back up to speed is so much faster with an always-on, infinitely patient tutor who has read (and remembers!) all the docs.<|im_end|>
+    <|im_start|>assistant
+    
