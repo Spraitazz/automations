@@ -1,15 +1,49 @@
 
 from spires.definitions import *
 
+#
+# TO DO: return dataclass/obj SpiresConfig?
+#
+def load_config(automation: WebAutomation) -> dict:
+
+    config = {}        
+
+    configfile = configparser.ConfigParser(interpolation=None)
+    configfile.read(automation.config_fpath)
+    
+    config["TUTOR_NAME"] = configfile["DEFAULT"]["TUTOR_NAME"].strip().strip('"')
+    config["EMAIL"] = configfile["DEFAULT"]["EMAIL"].strip().strip('"')
+    config["PASS"] = configfile["DEFAULT"]["PASS"].strip().strip('"')
+    config["CURRENCY_API_KEY"] = (
+        configfile["DEFAULT"]["CURRENCY_API_KEY"].strip().strip('"')
+    )
+    config["MY_CURRENCY"] = configfile["DEFAULT"]["MY_CURRENCY"].strip().strip('"')
+    config["MY_DEGREES"] = json.loads(configfile["DEFAULT"]["MY_DEGREES"])
+    config["MY_SUBJECTS"] = json.loads(configfile["DEFAULT"]["MY_SUBJECTS"])
+    config["MY_BIDS"] = json.loads(configfile["DEFAULT"]["MY_BIDS"])
+    config["MIN_SLEEP_S"] = float(configfile["DEFAULT"]["MIN_SLEEP_S"])
+    config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
+    config["RESPOND_MESSAGES"] = configfile.getboolean(
+        "DEFAULT", "RESPOND_MESSAGES", fallback=False
+    )
+    
+    return config
+    
+
 
 def round_to_nearest_5(x: float):
     return round(x / 5.0) * 5.0
 
 
+#
+# TO DO: move to webautomation
+#
 def click_delay(min: float = CLICK_DELAY_MIN, max: float = CLICK_DELAY_MAX):
     time.sleep(random.uniform(min, max))
 
-
+#
+# TO DO: move to webautomation
+#
 def click(driver: ChromeDriver, elem: WebElement):
     ActionChains(driver).move_to_element(elem).pause(
         random.uniform(0.5, 1.5)
@@ -80,13 +114,18 @@ def update_exchange_rate(currency: str, config: dict, logger: logging.Logger):
     return 0
 
 
-# recursively go into the first direct descendent div of a given element
+#
+# TO DO: move to webautomation
+#
 def deepest_div(element: WebElement):
+    """recursively go into the first direct descendent div of a given element,
+    returning the deepest div"""
     divs = element.find_elements(By.XPATH, "./div")
     if divs:
         return deepest_div(divs[0])
     else:
         return element
+
 
 
 #

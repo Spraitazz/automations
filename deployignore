@@ -1,27 +1,20 @@
 
 
 **/logs/**
+configs/
+notes/ 
+scripts/
 
 skelbiu/my_items.json
-
-configs/
-
-llm_server/
+spires/other/
+linkedin/
 
 githubignore
 deployignore
 python_template.gitignore
 conda_env_github.yml
 
-spires/other/
 
-linkedin/
-
-notes/ 
-
-scripts/
-
-selenium_IDE_projects/
 
 
 

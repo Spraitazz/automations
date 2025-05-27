@@ -5,7 +5,7 @@
 #
 import logging
 import time
-from linkedin.prompts_qwen3 import *
+from linkedin.llm import generate_post
 
 
 
@@ -21,7 +21,7 @@ logger.addHandler(handler)
 
 
 
-post = try_generate_post(logger)
+post = generate_post(logger)
 
 
 print(post)

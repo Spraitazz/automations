@@ -4,5 +4,10 @@ dependencies:
   - pip
   - pip:
       - selenium
-      - xvfbwrapper
+      - xvfbwrapper      
+      - llama-cpp-python
+      - requests
+      - uvicorn
+      - fastapi
+      - pandas
 prefix: /home/jonas/programs/miniconda3/envs/automations

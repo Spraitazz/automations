@@ -1,6 +1,6 @@
 
+from definitions import LLM_API_SUBMIT_URL, LLM_API_RESULT_URL
 from llm_server.definitions import *
-
 
 class LLMRequestResultStatus(IntEnum):
     OK = 0
@@ -11,7 +11,9 @@ class LLMRequestResult(BaseModel):
     response: str
     num_tries: int
 
-
+#
+# TO DO: need to add check that llm_params is LLMParams instance, then model_dump()
+#
 # TO DO: if max_wait_s > 0., need to also add checking for time
 #
 # TO DO: return failed reason: did not generate in num max tries, OR llm server went off
@@ -31,7 +33,7 @@ def llm_request(
     
 
     job_id = str(uuid.uuid4())
-    payload = {"prompt": prompt, "job_id": job_id, "llm_params": llm_params, "num_tries_max": num_tries_max}
+    payload = {"prompt": prompt, "job_id": job_id, "llm_params": llm_params.model_dump(), "num_tries_max": num_tries_max}
 
     try:
         response = requests.post(LLM_API_SUBMIT_URL, json=payload)
@@ -51,7 +53,7 @@ def llm_request(
                         f'LLM job request declined, status message: {json["status_msg"]}'
                     )
                 else:
-                    logger.warning(
+                    logger.error(
                         f'LLM job request failed, errors: {json["errors"]}'
                     )
                 return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)

@@ -1,15 +1,31 @@
 """
 linkedin/run.py
 
+Current behaviour:
+
+#
+# FLOW: find next session, sleep until next session, login at random time during session,
+#       make between (min, max) comments, then make a post with probability session_post_chance,
+#       but no more than num_max_posts_per_day.
+#
+
+
+TO DO: make behaviour appear more random by picking from a list of actions,
+and not being so strictly attached to "sessions"
+
+
+-----------------------------------------------------------------------
 This module contains the high-level functionality of the linkedin automation: 
 there are three main times to go to the site - morning (with x % chance),
 afternoon (with y % chance) and evening (with z % chance). During one visit
 to the site, the automation will perform a random number (N) of actions from
 the following list of actions: 
 
+* scroll and "read"
 * comment under a post
-* TO DO: make a post
+* make a post
 * TO DO: accept connection
+* TO DO: respond to messages
 
 Functions:
 ----------
@@ -21,127 +37,254 @@ Example:
 >>> from utils.data_processing import load_csv, clean_missing_values, normalize_columns
 >>> df = load_csv("data/my_dataset.csv")
 """
-#
-#
-# Login, go to feed
-# Repeat forever: refresh feed, respond to a random few posts, go to sleep for random time
-#
-#
+from datetime import datetime, timedelta
 from linkedin.definitions import *
 from linkedin.utils import (
-    click_delay,
-    launch_browser,
     login,    
-    send_unhandled_exception_email,
+    go_to_feed,
+    scroll_pretend_read
 )
-from linkedin.comment_posts import respond_comments #comment_random_post
-#from linkedin.posts import make_post
+from linkedin.comment_posts import comment_random_post 
+from linkedin.make_posts import make_post
 from xvfbwrapper import Xvfb
 
 
-
-# setup logger to generate a file daily, keeping last 7 days backup
-logger = logging.getLogger("logger")
-logger.setLevel(logging.DEBUG)
-handler = TimedRotatingFileHandler(LOG_PATH, when="midnight", backupCount=7)
-handler.suffix = "%Y%m%d"
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - [%(filename)30s:%(lineno)4s - %(funcName)30s()] - %(levelname)s - %(message)s"
-)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-
-"""
 #
-# uptimes currently 1h each, expecting to respond to 2-5 posts
-# and maybe make a post
+# TO DO: remove, automation.start() handles this
 #
-# {uptime_name: hours (from, to)} in 24h format
-uptimes = {
-"morning": (8, 9),
-"afternoon": (13, 14),
-"evening": (18, 19)
+logger, logs_folder_path = init_default_logger("linkedin")
+
+# {session_name: valid session start time range in 24h format}
+start_time_range = {
+"morning": (8, 10),
+"afternoon": (13, 15),
+"evening": (18, 20)
+} 
+
+post_probability = {
+"morning": 0.2,
+"afternoon": 0.3,
+"evening": 0.5
 }
 
-num_posts_per_day = 1
+min_comments_per_session = 0 
+max_comments_per_session = 2 
 
-num_posts_today = 0
-
-morning_post_chance = 0.2
-afternoon_post_chance = 0.3
-evening_post_chance = 0.5
+num_max_posts_per_day = 1
+num_tries_max_post = 2
 
 
-on start:
-
-find next session
-sleep until next session
-
-session starts:
-
-in 1h want to respond to 2-5 posts, and make a post
-
-go to feed
-scroll, "read", scroll
-respond comment
-scroll, "read", scroll
+def get_session_name(start_time_range: dict[str, Tuple[int, int]]) -> str:
+    
+    session_name = ""
+    
+    current_hour = datetime.now().hour    
+    for name, hour_range in start_time_range.items():
+        if hour_range[0] <= current_hour < hour_range[1]:
+            session_name = name
+            break
+        
+    return session_name
 
 
-
-possible_actions = [comment_random_post] #scroll_feed #make_post
-
-"""
+def time_until_next_session(start_time_range: dict) -> float:
+    """return time to sleep (in seconds) until next session"""
 
 
+    now = datetime.now()
+    current_hour = now.hour
 
-def run():
-    """This linkedin automation will work at normal times - morning,
+    # Sort sessions by start hour ascending
+    sessions_sorted = sorted(start_time_range.items(), key=lambda x: x[1][0])
+    num_sessions = len(sessions_sorted)
+
+    # Find the next session start after now
+    next_session = None
+    for i, (name, (start_hour, end_hour)) in enumerate(sessions_sorted):
+        if current_hour < start_hour:
+            next_session = (name, start_hour, end_hour)
+            break
+        elif start_hour <= current_hour < end_hour:
+            if i != num_sessions - 1:
+                next_session = (sessions_sorted[i+1][0], *sessions_sorted[i+1][1])
+                break
+
+    # If no next session today, pick the first session tomorrow
+    if next_session is None:
+        name, (start_hour, end_hour) = sessions_sorted[0]
+        # Calculate next session start as tomorrow at start_hour
+        next_session_start = now.replace(hour=start_hour, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        sleep_seconds = (next_session_start - now).total_seconds()
+        # Then add a random offset within the session duration (in seconds)
+        sleep_seconds += random.uniform(0, (end_hour - start_hour) * 3600)
+        return sleep_seconds
+        
+
+    # get time to sleep until next session start + random offset
+    name, start_hour, end_hour = next_session
+    next_session_start = now.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+    sleep_seconds = (next_session_start - now).total_seconds()
+    sleep_seconds += random.uniform(0, (end_hour - start_hour) * 3600)
+
+    return sleep_seconds
+
+
+
+
+def run(automation: WebAutomation):
+    """This linkedin automation works at normal times - morning,
     afternoon, or evening. It waits for the next working period,
     then logs in (if not logged in already), goes to your feed,
-    and either comments on a random number of random posts,
-    or makes a single post, or both."""
+    and first comments on between {min_comments_per_session} and
+    {max_comments_per_session} random posts, after which it may
+    or may not make a single post."""
     
+    #
+    # TO DO: logger = automation.logger (when initialised properly from controller by automation.start)?
+    #
+    automation.logger = logger
+    
+    logger.debug("started")    
+
+    driver = automation.init_webdriver()
+    login(automation)
+    
+    # wait until feed is loaded
+    while True:
+        if go_to_feed(automation):
+            break
+        logger.warning(f"feed did not load in {DEFAULT_LOAD_WAIT_TIME_S} seconds, sleeping for 60s and retrying")
+        #
+        # TO DO: interruptable or simply automation.sleep
+        #
+        time.sleep(60.)  
+        
+        
+    #
+    # TO DO: finish this part in case they add some annoying popup like
+    #        "buy our premium trash" on your feed
+    #
+    # wait for it to load and try click on "Jobs" span
     try:
-
-        logger.debug("linkedin bot started")
-
-        with Xvfb(display=3, width=2560, height=1600) as xvfb:
-            driver = launch_browser()
-            login(driver)
-            click_delay()
-
-            responded_posts = []
-            while True:
-                #
-                # TO DO: wait until feed page is loaded
-                #
-                logger.debug("checking for new posts to respond to")
-                responded_posts = respond_comments(
-                    driver, responded_posts=responded_posts
+        jobs_li = WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//li[contains(@class, "global-nav__primary-item") and ./a[contains(@href, "linkedin.com/jobs")]]')
                 )
-                sleep_time = random.uniform(MIN_SLEEP_S, MAX_SLEEP_S)
-                logger.debug(
-                    "going to sleep for {:.1f} s until next checking".format(sleep_time)
-                )
-                driver.get(DEFAULT_URL)
-                time.sleep(sleep_time)
-                driver.get(FEED_URL)
-                # driver.refresh()
-
-    except KeyboardInterrupt:
-        # ctrl+c to kill still works
-        return
+        )    
+        automation.driver_try_click(jobs_li)
+        #
+        # TO DO: wait for jobs loaded, if loaded, go_to_feed() and continue
+        #
+        #
+        # TO DO: automation.sleep(10.)
+        #
+        time.sleep(10.)
+        go_to_feed(automation)
     except:
-        # send email, then restart
         logger.exception("")
-        logger.debug("sending unhandled exception email")
-        send_unhandled_exception_email(BOT_NAME)
-        time.sleep(10.0)
-        # driver.quit()
-        run()
+        
+    #
+    # TO DO: need to clean up above mess?
+    #
+    driver.get(DEFAULT_URL)
+    
+    commented_posts = []
+    num_posts_today = 0
+    while True:
+        # entering this loop, I am at DEFAULT_URL
+        
+        
+        sleep_s = time_until_next_session(start_time_range)       
+        #
+        # TO DO: automation.sleep(sleep_s)
+        #       
+        logger.debug(f"sleeping for {sleep_s/3600.:.1f} h until next session")
+        time.sleep(sleep_s)      
+        
+          
+        session_name = get_session_name(start_time_range)
+        if len(session_name) == 0:
+            logger.error(f"UNEXPECTED")
+            time.sleep(60.)
+            continue
+            
+        logger.info(f"session '{session_name}' started")
+        
+        go_to_feed(automation)            
+
+        num_comments_to_make = random.choice([i for i in range(min_comments_per_session,max_comments_per_session+1)])               
+        logger.debug(f"will make {num_comments_to_make} comments this session")
+        
+        logger.debug("scrolling and reading")        
+        scroll_pretend_read(driver)
+        
+        # first do the commenting
+        comments_made = 0
+        while comments_made < num_comments_to_make: 
+            
+            commented_post_text = comment_random_post(automation, commented_posts)
+            if len(commented_post_text) > 0:
+                #
+                # TO DO: after a comment, could click button (check for if appeared)
+                # "New posts"
+                #
+                logger.debug("comment success, going to scroll and read")
+                comments_made += 1
+                commented_posts.append(commented_post_text)
+                scroll_pretend_read(driver)
+            else:
+                #
+                # TO DO: refresh?                
+                #
+                logger.warning("comment failed, will retry in 30s")
+                time.sleep(30.)
+                continue
+        
+            
+        # then do the posting, only one post in a session     
+        if random.uniform(0., 1.) < post_probability[session_name] and num_posts_today < num_max_posts_per_day:
+            logger.debug("going to make a post")
+            
+            num_tries_post = 0
+            while num_tries_post < num_tries_max_post: 
+                success = make_post(automation)
+                if success:
+                    logger.debug("post success")
+                    break
+                
+                logger.warning("post failed (try {num_tries_post+1}/{num_tries_max_post}), will retry in 30s")
+                num_tries_post += 1
+                #
+                # TO DO: automation.sleep(sleep_s)
+                #       
+                time.sleep(30.)
+                driver.refresh()       
+        
+        
+        if session_name == "evening":
+            num_posts_today = 0
+        
+        logger.debug(f"done with session '{session_name}', returning home")        
+        driver.get(DEFAULT_URL)        
 
 
 if __name__ == "__main__":
-    run()
+
+    with Xvfb(display=8, width=2560, height=1600) as xvfb:
+        
+        automation = WebAutomation(
+            name="linkedin",
+            run_func=run,
+            config_fpath=config_path,
+            with_xvfb=False,
+            xvfb_display=4,
+        )    
+
+        run(automation)
+
+    
+    
+    
+    
+    
+    

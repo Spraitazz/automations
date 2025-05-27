@@ -1,4 +1,4 @@
-from definitions import DEFAULT_URL, DEFAULT_BROWSER_OPTIONS
+
 from skelbiu.definitions import *
 from skelbiu.utils import login, check_need_renew, update_items_store
 from skelbiu.renew_ads import renew_ads
@@ -19,12 +19,11 @@ def run(automation: WebAutomation):
 
     logger = automation.logger
 
-    #ccreate items store file if it does not exist
+    # create items store file if it does not exist
     Path(MY_ITEMS_STORE_FPATH).touch(exist_ok=True)
 
-
-    config = {}
     # try load config
+    config = {}    
     configfile = configparser.ConfigParser(interpolation=None)
     configfile.read(automation.config_fpath)
     try:
@@ -33,14 +32,18 @@ def run(automation: WebAutomation):
         config["MIN_SLEEP_S"] = float(configfile["DEFAULT"]["MIN_SLEEP_S"])
         config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
     except:
-        logger.exception(f"{automation.name} automation config not ok")
+        logger.exception("config not ok")
         return
 
     automation.set_config(config)
-    logger.debug(f"{automation.name} automation started")
-
-    driver = webdriver.Chrome(options=DEFAULT_BROWSER_OPTIONS)
-    automation.set_driver(driver)
+    logger.debug("automation started")
+    
+    #
+    # TO DO: wrap in try/except in WebAutomation - check for 
+    #       selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; 
+    #       For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+    #
+    driver = automation.init_webdriver()
     
     # load my items store: items for which I have a record already (when each item was last renewed)    
     stored_items = {}
@@ -55,9 +58,18 @@ def run(automation: WebAutomation):
         
         if check_need_renew(stored_items):
             logger.debug("going to check my ads")
-            login(automation)
+            
+            if not login(automation):
+                logger.error("could not login, sleeping for 60s before retry")
+                automation.sleep(60.)
+                continue
+            
             result = renew_ads(automation)
-            update_items_store(stored_items, result)                
+            #
+            # TO DO: SkelbiuAutomation extends WebAutomation and has func update_items_store()
+            #        then will also look cleaner as wont need some of the other args (self.)
+            #
+            update_items_store(automation, stored_items, result)                
             automation.driver_try_get(DEFAULT_URL)
         else:
             logger.debug("will not check my ads this time")

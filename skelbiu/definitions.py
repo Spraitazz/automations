@@ -19,7 +19,7 @@ from selenium.common.exceptions import (
 )
 from selenium.webdriver.support.ui import WebDriverWait
 
-from automation import WebAutomation
+from web_automation import *
 
 
 BASE_URL = "https://www.skelbiu.lt"

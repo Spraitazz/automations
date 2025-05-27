@@ -2,7 +2,7 @@ import socket
 
 from definitions import *
 from utils import init_default_logger
-from automation import Automation, WebAutomation
+from web_automation import WebAutomation
 
 from llm_server.controller import start as start_llm_server
 from llm_server.controller import stop as stop_llm_server
@@ -19,11 +19,21 @@ from spires.run import run as run_spires
 # config = configparser.ConfigParser(interpolation=None)
 # PASS = config['DEFAULT']['PASS'].strip('"')
 #
+
+from xvfbwrapper import Xvfb
+
+xvfb = Xvfb(display=3, width=2560, height=1600)
+xvfb.start()
+
+#
+# TO DO: with_xvfb individually would take more effort, so remove this option and just
+# use xvfb for all or none
+#
 skelbiu_automation = {
     "class": WebAutomation,
     "run_func": run_skelbiu,
     "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
-    "with_xvfb": True,
+    "with_xvfb": False,
     "run_on_startup": False,
 }
 
@@ -31,11 +41,14 @@ spires_automation = {
     "class": WebAutomation,
     "run_func": run_spires,
     "config_fpath": Path.home() / "automation_configs" / "spires" / "config.ini",
-    "with_xvfb": True,
+    "with_xvfb": False,
     "run_on_startup": False,
 }
 
-AUTOMATIONS = {"skelbiu": skelbiu_automation, "spires": spires_automation}
+AUTOMATIONS = {
+"skelbiu": skelbiu_automation,
+"spires": spires_automation
+}
 
 logger, logs_folder_path = init_default_logger("controller")
 
@@ -113,16 +126,16 @@ def controller_start_automation(
             f"{automation_name} not specified in AUTOMATIONS at the top of this file\n".encode()
         )
         return
+        
+    if automation_name in automations_running:
+        conn.sendall(f"{automation_name} is already running, stop it first\n".encode())
+        return
 
     if len(config_fpath) == 0 and "config_fpath" not in AUTOMATIONS[automation_name]:
         conn.sendall(
             f"config_fpath not specified for {automation_name} in AUTOMATIONS at the top of this file\n".encode()
         )
-        return
-
-    if automation_name in automations_running:
-        conn.sendall(f"{automation_name} is already running, stop it first\n".encode())
-        return
+        return    
 
     if len(config_fpath) == 0:
         config_fpath = AUTOMATIONS[automation_name]["config_fpath"]
@@ -170,8 +183,7 @@ def handle_client(conn: socket.socket):
             # currently only allow "start/stop llm_server" and "status/stop bot_name"
             if commands[0] == "start" and commands[1] == "llm_server":            
                 if llm_server_on:
-                    logger.debug(f"llm server already running at url: {LLM_SERVER_BASE_URL}")
-                    conn.sendall(f"llm server already running at url: {LLM_SERVER_BASE_URL}\n".encode())
+                    respond_and_log(f"llm server already running at url: {LLM_SERVER_BASE_URL}", conn)
                     return                               
                 
                 started_ok = start_llm_server(logger)       
@@ -196,33 +208,25 @@ def handle_client(conn: socket.socket):
                     conn.sendall("LLM server could not be stopped\n".encode())                 
      
 
-            elif commands[0] == "status" or commands[0] == "stop":
+            elif commands[0] == "stop":
             
                 automation_name = commands[1]
                 
                 if not automation_name in automations_running:
                     conn.sendall(f"{automation_name} is not running\n".encode())
-                    return
+                    return               
 
-                if commands[0] == "status":
-                    # get automation status
-                    logger.debug(f"get {automation_name} status")
-                    conn.sendall(f"{automation_name} is running\n".encode())
-                elif commands[0] == "stop":
-                    # stop automation
-                    logger.debug(f"stop {automation_name}")
-                    automations_running[automation_name].stop_event.set()
-                    conn.sendall(
-                        f"stop command issued for automation [{automation_name}], will wait for graceful exit\n".encode()
-                    )
-                    threading.Thread(
-                        target=wait_for_stopped,
-                        args=(automation_name, conn, logger),
-                        daemon=True,
-                    ).start()
-
-                else:
-                    conn.sendall(f'Command "{data}" is not admissible\n'.encode())
+                # stop automation
+                logger.debug(f"stop {automation_name}")
+                automations_running[automation_name].stop_event.set()
+                conn.sendall(
+                    f"stop command issued for automation [{automation_name}], will wait for graceful exit\n".encode()
+                )
+                threading.Thread(
+                    target=wait_for_stopped,
+                    args=(automation_name, conn, logger),
+                    daemon=True,
+                ).start()
 
             elif commands[0] == "start":
                 # start automation_name (using its default config path if specified in automationS at the top of this file)

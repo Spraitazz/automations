@@ -25,6 +25,7 @@ def login(automation: WebAutomation):
         target = driver.find_element(By.ID, "onetrust-reject-all-handler")
         target.click()
         click_delay()
+        logger.debug("clicked 'reject all cookies'")
     except:
         logger.warning("did not need to reject cookies")
 
@@ -39,9 +40,22 @@ def login(automation: WebAutomation):
     click_delay()
 
     submit_btn = driver.find_element(By.ID, "submit-button")
-    submit_btn.click()
+    clicked = automation.driver_try_click(submit_btn) #.click()
+    #
+    # TO DO: can also add check if offending elem was deleted, or keep trying to click
+    #        until all offending elems are gone
+    #
+    if not clicked:    
+        # the offending element should be deleted now, try click again
+        try:
+            submit_btn.click()
+        except:    
+            logger.exception("still could not click login on 2nd try")
+            return False
+            
     logger.debug("clicked login")
     click_delay()
+    return True
  
 # check if I want to go to site
 def check_need_renew(stored_items: dict) -> bool:  
@@ -63,18 +77,30 @@ def check_need_renew(stored_items: dict) -> bool:
     return check_renew
         
                
-    
-def update_items_store(stored_items: dict, result: dict):
+#
+# TO DO: get rid of items which are in stored_items but not in result
+#    
+def update_items_store(automation: WebAutomation, stored_items: dict, result: dict):
+
+    logger = automation.logger
+
     stored_items_cur = {}            
     for item_id, status_dict in result.items():
         if status_dict["status"] == "renewed":
             # item freshly renewed
             stored_items_cur[item_id] = status_dict["last_renewed"]
+            logger.debug(f"updating item {item_id} renewed last: {status_dict['last_renewed']}")
         else:
             # has already been renewed when checking
             if item_id in stored_items:
                 stored_items_cur[item_id] = stored_items[item_id]
             else:
                 stored_items_cur[item_id] = "-"
+                
+    logger.debug(f"will write stored_items_cur: {stored_items_cur} to {MY_ITEMS_STORE_FPATH}")
+                
     with open(MY_ITEMS_STORE_FPATH, "w", encoding="utf-8") as f:
         json.dump(stored_items_cur, f)
+        
+        
+        

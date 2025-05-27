@@ -1,27 +1,15 @@
-
+#
+#
+# TO DO: repackage everything useful (common utils like smooth_click etc.)
+#        under SeleniumAutomation class, passing it around instead of the logger
+#        explicitly
+#
+#
 from linkedin.definitions import *
-from linkedin.utils import click_delay, random_scroll, wait_feed_loaded, remove_non_bmp
-from linkedin.prompts_qwen3 import try_generate_comment, GenerateError
+from linkedin.utils import click_delay, go_to_feed, remove_non_bmp
+from linkedin.llm import generate_comment
 
-
-
-def filter_activity_suggested(activity_divs: list[WebElement]):
-    """Filter out only feed activity divs for activity which is "Suggested" for you"""
-
-    activity_divs_suggested = []
-    
-    for activity_div in activity_divs:
-        try:
-            suggested_span = activity_div.find_element(By.XPATH,
-                              './/span[contains(@class, "update-components-header__text-view")]')
-            if 'Suggested' in suggested_span.text.strip():
-                activity_divs_suggested.append(activity_div)
-        except:
-            continue
-            
-    return activity_divs_suggested
-    
-    
+'''  
 def try_focus(driver, logger, this_elem):    
     try:
         driver.execute_script(
@@ -40,10 +28,90 @@ def try_focus(driver, logger, this_elem):
 
     except:
         logger.exception("")
+'''  
+
+def filter_activity_suggested(activity_divs: list[WebElement]):
+    """Filter out only feed activity divs for activity which is "Suggested" for you"""
+
+    activity_divs_suggested = []
+    
+    for activity_div in activity_divs:
+        try:
+            suggested_span = activity_div.find_element(By.XPATH,
+                              './/span[contains(@class, "update-components-header__text-view")]')
+            if 'Suggested' in suggested_span.text.strip():
+                activity_divs_suggested.append(activity_div)
+        except:
+            continue
+            
+    return activity_divs_suggested
+
+
+#
+# TO DO: also add "Promoted" spam
+# 
+#
+# TO DO: improve func def to allow return None
+#
+def pick_random_activity_div(automation: WebAutomation, commented_posts: list[str]) -> WebElement:
+    """Pick a random activity div on the feed, where one activity div corresponds to
+    one post, and return it. Preferentially picking "Suggested" spam posts to comment
+    on."""
+    
+    logger = automation.logger
+    driver = automation.driver
+    
+    activity_divs = driver.find_elements(
+        By.XPATH, "//div[contains(@data-id, 'urn:li:activity')]"
+    )
+
+    logger.debug(f"{len(activity_divs)} posts visible")   
+    
+    if len(activity_divs) == 0:
+        return None   
+      
+    # prioritise responding to "suggested" spam    
+    activity_divs_suggested = filter_activity_suggested(activity_divs)    
+    activity_divs_available = []
+    if len(activity_divs_suggested) == 0:
+        logger.warning("could not find any 'Suggested' divs")
+    else:
+        logger.debug(f"{len(activity_divs_suggested)} 'Suggested' posts visible") 
+        for activity_div in activity_divs_suggested:        
+            post_text_cleaned = ""
+            try:
+                post_text_cleaned = get_post_text(activity_div)
+            except:
+                logger.exception("Could not get cleaned post text")
+                continue
+            
+            if post_text_cleaned not in commented_posts:
+                activity_divs_available.append(activity_div)
+                
+    if len(activity_divs_available) > 0:  
+        return random.choice(activity_divs_available)
+        
+    # no 'suggested' spam, so pick from remainder
+    logger.debug("no suggested spam to comment on, picking from the rest")
+    
+    for activity_div in activity_divs:        
+        post_text_cleaned = ""
+        try:
+            post_text_cleaned = get_post_text(activity_div)
+        except:
+            logger.exception("Could not get cleaned post text")
+            continue
+        
+        if post_text_cleaned not in commented_posts:
+            activity_divs_available.append(activity_div)
+       
+    if len(activity_divs_available) > 0:  
+        return random.choice(activity_divs_available)
+        
+    return None
     
     
-    
-def get_post_text(activity_div: WebElement):
+def get_post_text(activity_div: WebElement) -> str:
     """Returns the post text, without non-bmp characters, given the activity div"""
 
     text_div = activity_div.find_element(
@@ -55,56 +123,23 @@ def get_post_text(activity_div: WebElement):
     return post_text_cleaned
     
 
-#
-# TO DO: need function comment_on(activity_div: WebElement)
-#
-# TO DO: in case I go to different pages on linkedn, here I should:
-#           1. Go to feed url
-#           2. wait (max 10s?) for activity divs to be visible
-#
-#
-# IMPORTANT: num_responded only counts in between sleep periods, while responded_posts ensures we dont respond to duplicates
-#
-def respond_comments(
-    driver: ChromeDriver, num_responded: int = 0, responded_posts: list[str] = []
-):
-
-    responded_count = num_responded
-
-    logger = logging.getLogger("logger")   
+def comment_on(activity_div: WebElement, automation: WebAutomation) -> bool:
+    """Simply return True if commented ok, otherwise return False.
     
-    try:
-        wait_feed_loaded(driver)  
-    except:
-        logger.warning(
-            f"activity divs on feed page did not load in {DEFAULT_LOAD_WAIT_TIME_S} seconds"
-        )
-        return responded_posts
-
-    random_scroll(driver)    
     
-    activity_divs = driver.find_elements(
-        By.XPATH, "//div[contains(@data-id, 'urn:li:activity')]"
-    )
-
-    logger.debug(f"{len(activity_divs)} posts visible")        
-    # respond only to "suggested" spam    
-    activity_divs_suggested = filter_activity_suggested(activity_divs)
+    How to make error more clear???
     
-    if len(activity_divs_suggested) == 0:
-        logger.warning("could not find any 'Suggested' divs")
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
-        
-    logger.debug(f"{len(activity_divs_suggested)} 'Suggested' posts visible")    
-    # pick at random a post to comment on    
-    activity_div = random.choice(activity_divs_suggested)
+    
+    """
+    
+    logger = automation.logger
+    driver = automation.driver
 
-    #
-    # TO DO: need function comment_on(activity_div: WebElement)
-    #
-
+    # move to element - looks more realistic    
+    ActionChains(driver).move_to_element(activity_div).perform()
+    # ALTERNATIVE:
+    # var element = Driver.FindElement(By.Id("element-id"));
+    # ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     
     # try find "Comment" button    
     comment_btn = []
@@ -113,48 +148,41 @@ def respond_comments(
             By.XPATH,
             ".//span[contains(@class, 'artdeco-button') and normalize-space(text())='Comment']",
         )
-
         comment_btn = activity_div.find_elements(
             By.XPATH, ".//button[@aria-label='Comment']"
         )
     except:
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
+        return ""
 
     if len(comment_btn) != 1:
         logger.warning(f"comment btn has len: {len(comment_btn)}")
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
-
-    # move to element - looks more realistic    
-    ActionChains(driver).move_to_element(activity_div).perform()
-    # ALTERNATIVE:
-    # var element = Driver.FindElement(By.Id("element-id"));
-    # ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-
-
+        return ""
+    
+    # can comment
+    
+    #
+    # To DO: provide prompt with more details:
+    #
+    
+    ## who posted (person/org?)
+    # first select span by CONTAINS class="update-components-actor__title"
+    # then go into FIRST children spans recursively until end, get text
+    
+    ## their org (if person)
+    # first select span by CONTAINS class "update-components-actor__description"
+    # go into FIRST children spans recursive until end, get text
+    
+    
+    
     # can comment: get text, feed to llm, get comment
     post_text_cleaned = ""
     try:
         post_text_cleaned = get_post_text(activity_div)
     except:
         logger.exception("Could not get cleaned post text")
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
+        return ""
     
-    logger.debug(f"POST (CLEANED):\n{post_text_cleaned}")
-
-    if post_text_cleaned in responded_posts:
-        logger.debug("Already responded")
-        # continue
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
-
-    logger.debug("Will respond to post")
+    logger.debug(f"responding to POST (CLEANED):\n{post_text_cleaned}")
 
     #
     # TO DO: wait until loaded
@@ -166,9 +194,7 @@ def respond_comments(
         click_delay()
     except:
         logger.exception("")
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
+        return ""
 
     try:
         comment_div = activity_div.find_element(
@@ -177,11 +203,21 @@ def respond_comments(
         )
         first_p = comment_div.find_element(By.XPATH, "./p[1]")
 
-        my_comment = try_generate_comment(post_text_cleaned, logger)
-
+        my_comment = generate_comment(post_text_cleaned, logger)
+        # ChromeDriver doesnt support non-bmp
+        my_comment = remove_non_bmp(my_comment)
+        
+        if len(my_comment) == 0:
+            #logger.warning("Failed to generate comment")
+            return ""
+        
+        logger.debug(f"Commenting response:\n{my_comment}")
         first_p.send_keys(my_comment)
-
         click_delay()
+        #
+        # TO DO: not clear here whether the button is searched only as
+        #        a descendent of the comment_div
+        #
         submit_comment_btn = WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
             EC.presence_of_element_located(
                 (
@@ -190,13 +226,12 @@ def respond_comments(
                 )
             )
         )
-        logger.debug(f"Commenting response:\n{my_comment}")
+        
         ActionChains(driver).move_to_element(submit_comment_btn).pause(
             random.uniform(0.5, 1.5)
         ).click().perform()
-        responded_count += 1
-        responded_posts.append(post_text_cleaned)
-        click_delay()
+        
+        return post_text_cleaned
 
     except NoSuchElementException:
         logger.warning("add comment element not found")
@@ -205,17 +240,26 @@ def respond_comments(
         logger.exception("")
     except:
         logger.exception("")
- 
+        
+        
+    return ""
 
-    if responded_count < NUM_COMMENTS_ONE_GO:
-        logger.debug("Have to refresh")
-        click_delay()
-        driver.refresh()
-        time.sleep(DEFAULT_LOAD_WAIT_TIME_S)
-        return respond_comments(
-            driver, num_responded=responded_count, responded_posts=responded_posts
-        )
-    else:
-        logger.debug(f"Done responding with {responded_count} comments")
+   
 
-    return responded_posts
+#
+# TO DO: add check and log warning if not on feed when called
+#
+def comment_random_post(automation: WebAutomation, commented_posts: list[str]) -> bool:
+    """Try to comment on a random (prioritizing "Suggested" spam) post and return bool
+    indicating whether the comment was made"""   
+        
+    if not go_to_feed(automation):
+        return ""
+        
+    activity_div = pick_random_activity_div(automation, commented_posts)
+    if activity_div is None:
+        return ""
+
+    return comment_on(activity_div, automation)
+
+    

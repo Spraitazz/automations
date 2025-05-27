@@ -8,9 +8,7 @@ def renew_ads(automation: WebAutomation):
     result = {} #{item id: status_str}
 
     logger = automation.logger
-    driver = automation.driver
-    
-    
+    driver = automation.driver    
 
     table = driver.find_element(By.ID, "adsList")
     rows = table.find_elements(By.TAG_NAME, "tr")

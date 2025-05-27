@@ -2,11 +2,10 @@ import os
 from pathlib import Path
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from enum import IntEnum
 import typing
 from typing import Tuple
-import threading
 from pydantic import BaseModel, Field, conint, confloat, ValidationError
-from enum import IntEnum
 import threading
 from collections import deque
 import uuid
@@ -20,21 +19,25 @@ import fastapi
 from fastapi import FastAPI, HTTPException
 import pandas as pd
 
+from definitions import LLM_SERVER_PORT
 
+# DO NOT DELETE ME
 BASE_DIR = Path(__file__).resolve().parent
 
-LLM_CONFIG_PATH = Path.home() / "automation_configs" / "llm_server" / "config.ini"
+#LLM_CONFIG_PATH = Path.home() / "automation_configs" / "llm_server" / "config.ini"
 
 LOGGER_NAME = "llm_server"
 
 MODEL_NAME = "Qwen3-14B-Q6_K"
 
-LLM_GGUF_PATH = BASE_DIR / "llm_ggufs" / "Qwen3-14B-Q6_K.gguf"
+LLM_GGUF_PATH = Path.home() / "llm_ggufs" / "Qwen3-14B-Q6_K.gguf"
 NUM_THREADS_LLM = 8
 CONTEXT_LEN_LLM = 2048
 
-LLM_SERVER_HOST = "127.0.0.1"
-LLM_SERVER_PORT = 8000
+LLM_SERVER_HOST = "0.0.0.0"
+# 
+# TO DO: move to controller.py as only used there?
+#
 LLM_SERVER_BASE_URL = f"{LLM_SERVER_HOST}:{LLM_SERVER_PORT}"
 
 # set this to False to not save prompt/response pairs
@@ -44,16 +47,23 @@ PROMPT_DIR = BASE_DIR / "prompts"
 # where to store prompt info - request id (links to prompts dir) and llm params
 PROMPT_STORE_FPATH = BASE_DIR / "prompt_info.csv"
 
-# @app.post("/submit/")
-LLM_API_SUBMIT_URL = "http://localhost:8000/submit"
-# @app.get("/result/{job_id}")
-LLM_API_RESULT_URL = "http://localhost:8000/result"
+
 
 NUM_JOBS_MAX = 3
-NUM_TOKENS_PROMPT_MAX = 2048
-LEN_PROMPT_MAX = NUM_TOKENS_PROMPT_MAX * 5
+#
+# TO DO: as not seeing failed generation much (qwen3-14B), and also because it
+#        did not make sense on server-side to retry for same job (too long)
+#        need to check to make sure this is not hardcoded anywhere
+#
+NUM_MAX_TRIES_GENERATE_DEFAULT = 1
 
-NUM_MAX_TRIES_GENERATE_DEFAULT = 2
+#https://tokencounter.org/
+NUM_CHARACTERS_PER_TOKEN = 4
+
+NUM_TOKENS_PROMPT_MAX = CONTEXT_LEN_LLM
+LEN_PROMPT_MAX = NUM_TOKENS_PROMPT_MAX * NUM_CHARACTERS_PER_TOKEN
+
+
 
 # default values to use unless the request specifies either
 MAX_TOKENS_MIN = 10
@@ -64,7 +74,7 @@ TEMPERATURE_MIN = 0.1
 TEMPERATURE_MAX = 10.0
 TEMPERATURE_DEFAULT = 0.9
 
-TOP_K_MIN = 5
+TOP_K_MIN = 10
 TOP_K_MAX = 200
 TOP_K_DEFAULT = 50
 

@@ -14,9 +14,9 @@
 # leave
 # repeat
 #
-from definitions import DEFAULT_URL, DEFAULT_BROWSER_OPTIONS
+
 from spires.definitions import *
-from spires.utils import get_supported_currencies, login
+from spires.utils import load_config, get_supported_currencies, login
 from spires.bids import bid_jobs
 from spires.messages import check_messages
 
@@ -30,37 +30,23 @@ def run(automation: WebAutomation):
 
     logger = automation.logger
     config = {}
-
-    # try load config
-    configfile = configparser.ConfigParser(interpolation=None)
-    configfile.read(automation.config_fpath)
     try:
-        config["TUTOR_NAME"] = configfile["DEFAULT"]["TUTOR_NAME"].strip().strip('"')
-        config["EMAIL"] = configfile["DEFAULT"]["EMAIL"].strip().strip('"')
-        config["PASS"] = configfile["DEFAULT"]["PASS"].strip().strip('"')
-        config["CURRENCY_API_KEY"] = (
-            configfile["DEFAULT"]["CURRENCY_API_KEY"].strip().strip('"')
-        )
-        config["MY_CURRENCY"] = configfile["DEFAULT"]["MY_CURRENCY"].strip().strip('"')
-        config["MY_DEGREES"] = json.loads(configfile["DEFAULT"]["MY_DEGREES"])
-        config["MY_SUBJECTS"] = json.loads(configfile["DEFAULT"]["MY_SUBJECTS"])
-        config["MY_BIDS"] = json.loads(configfile["DEFAULT"]["MY_BIDS"])
-        config["MIN_SLEEP_S"] = float(configfile["DEFAULT"]["MIN_SLEEP_S"])
-        config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
-        config["RESPOND_MESSAGES"] = configfile.getboolean(
-            "DEFAULT", "RESPOND_MESSAGES", fallback=False
-        )
+        config = load_config(automation)
     except:
-        logger.exception(f"{AUTOMATION_NAME} automation config not ok")
+        logger.exception(f"config not ok")
         return
+    
 
     automation.set_config(config)
-    logger.debug(f"{AUTOMATION_NAME} automation started")
+    logger.debug(f"automation started")
 
+    #
+    # TO DO: supported_currencies = get_supported_currencies(logger) ???
+    #
     supported_currencies = []
     num_tries_max = 3
     retry_sleep_s = 10.
-    i_try = 0
+    i_try = 0    
     while i_try < num_tries_max:
         try:
             supported_currencies = get_supported_currencies(logger)
@@ -68,14 +54,13 @@ def run(automation: WebAutomation):
         except requests.ConnectionError:
             logger.warning(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
             automation.interruptable_sleep(retry_sleep_s)
-            i_try += 1        
-    #supported_currencies = get_supported_currencies(logger)
+            i_try += 1       
+
     if len(supported_currencies) == 0:
         logger.error("supported currencies were not retrieved, cannot bid")
         return
 
-    driver = webdriver.Chrome(options=DEFAULT_BROWSER_OPTIONS)
-    automation.set_driver(driver)
+    driver = automation.init_webdriver()
 
     login(automation)
 

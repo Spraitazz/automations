@@ -1,25 +1,16 @@
 
 **/logs/**
+notes/ 
+scripts/
 
 skelbiu/my_items.json
+spires/
+linkedin/
 
 githubignore
 deployignore
 python_template.gitignore
 conda_env_deploy.yml
-
-controller_deploy.py
-definitions_deploy.py
-
-notes/ 
-scripts/
-
-llm_server/
-
-spires/
-linkedin/
-
-selenium_IDE_projects/
 
 
 #

@@ -1,7 +1,7 @@
 
 from linkedin.definitions import *
 
-
+"""
 def send_unhandled_exception_email(bot_name: str):
 
     from_email = APP_EMAIL
@@ -18,32 +18,54 @@ def send_unhandled_exception_email(bot_name: str):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(APP_EMAIL, GMAIL_APP_PASS)
         server.sendmail(from_email, to_email, msg.as_string())
+"""
 
-
+#
+# TO DO: automation.click_delay
+#           ALSO IF READING THIS: centralise all convenience funcs like this, use interruptable here
+#
 def click_delay(min=2.0, max=4.0):
     time.sleep(random.uniform(min, max))
 
-
-def launch_browser() -> webdriver:
-    driver = webdriver.Chrome(options=DEFAULT_BROWSER_OPTIONS)
-    return driver
-
-def random_scroll(driver: ChromeDriver):    
-    """Scroll down a random amount, function can run anywhere from 0.75s to 30s"""
+#
+# TO DO: pass WebAutomation instance and use automation.sleep
+#
+def random_scroll(driver: ChromeDriver, scroll_up: bool = False):    
+    """Scroll up or down a random amount, function can run anywhere from 3s to 60s"""
+    
     for _ in range(random.choice([3, 5, 10])):
         scroll_y = random.randint(50, 300)
+        if scroll_up:
+            scroll_y *= -1
         driver.execute_script(f"window.scrollBy(0, {scroll_y});")
-        time.sleep(random.uniform(0.25, 3.0))
-        
-        
+        time.sleep(random.uniform(1.0, 6.0))
+
+#
+# TO DO: pass WebAutomation instance
+#
+def scroll_pretend_read(driver: ChromeDriver):
+    """random scroll either up (p = 0.4) or down (p = 0.6) a few
+    (currently hardcoded 6) times, pretending to read"""
+    
+    for _ in range(6):
+        if random.uniform(0., 1.) > 0.4:
+            random_scroll(driver)
+        else:
+            random_scroll(driver, scroll_up=True)
+
+
+def remove_non_bmp(text: str) -> str:
+    return "".join(c for c in text if ord(c) <= 0xFFFF)        
 
 
 
-def login(driver: webdriver):
-    #
-    # TO DO: replace with automation.driver_try_get(LOGIN_URL)
-    #
-    driver.get(LOGIN_URL)
+def login(automation: WebAutomation):
+    
+    logger = automation.logger
+    driver = automation.driver
+    
+    logger.debug("going to log in")
+    automation.driver_try_get(LOGIN_URL)
     click_delay()
     
     #
@@ -52,16 +74,6 @@ def login(driver: webdriver):
     # otherwise raise exception?
     #
     
-    """
-    try:
-        WebDriverWait(driver, DEFAULT_LOAD_WAIT_TIME_S).until(
-            lambda d: len(d.find_elements(By.CLASS_NAME, "slot")) >= 2
-        )
-    except TimeoutException:
-        logger.warning("couldnt find by class_name 'slot'")
-        
-    """
-
     # get "Remember me" checkbox, CHECKED BY DEFAULT
     # <input name="rememberMeOptIn" id="rememberMeOptIn-checkbox" class="large-input" checked="" value="true" type="checkbox">
     # if value="true" - click to uncheck, wait a sec, check that value="false", if true: proceed
@@ -78,8 +90,11 @@ def login(driver: webdriver):
 
     submit_btn = driver.find_element(By.CSS_SELECTOR, ".btn__primary--large")
     submit_btn.click()
+    logger.debug("clicked log in")
 
-
+#
+# TO DO: probably dont need this as a separate func?
+#
 def wait_feed_loaded(driver: ChromeDriver):
     """Wait up to DEFAULT_LOAD_WAIT_TIME_S for FEED_URL to be loaded 
     (for activities like posts, comments etc. to appear)"""
@@ -90,8 +105,25 @@ def wait_feed_loaded(driver: ChromeDriver):
             )
     )
 
-def remove_non_bmp(text: str) -> str:
-    return "".join(c for c in text if ord(c) <= 0xFFFF)
+
+def go_to_feed(automation: WebAutomation) -> bool:
+    """Check if I am not on feed, then go to feed, returning bool
+    indicating whether I am finally on feed (or otherwise, if returned
+    False, might indicate internet problems)."""
+    
+    # check I am actually at feed page
+    if automation.driver.current_url.strip() == FEED_URL:
+        return True
+    else:
+        automation.driver_try_get(FEED_URL)
+    
+    # make sure feed is loaded
+    try:
+        wait_feed_loaded(automation.driver)  
+        return True
+    except:
+        logger.warning(f"feed did not load in {DEFAULT_LOAD_WAIT_TIME_S} seconds")
+        return False
 
 
 

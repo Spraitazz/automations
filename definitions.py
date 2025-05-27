@@ -10,21 +10,10 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    TimeoutException,
-    StaleElementReferenceException,
-    ElementClickInterceptedException,
-)
-from xvfbwrapper import Xvfb
 
 
 BASE_DIR = Path(__file__).resolve().parent 
 
-DEFAULT_URL = "http://diedai.lt"
 
 SOCKET_PATH = os.environ.get("AUTOMATIONS_SOCKET_PATH", None)
 if SOCKET_PATH is None:
@@ -41,6 +30,8 @@ controller_log_dir_path = LOGS_DIR_PATH / "controller"
 controller_log_dir_path.mkdir(parents=True, exist_ok=True)      
 CONTROLLER_LOG_PATH = controller_log_dir_path / "log"
 
+#
+# TO DO: move this to load_config in utils.py, then pass around config or define global CONFIG there
 #
 # TO DO: already need logger here to notify of bad config?
 #
@@ -61,24 +52,11 @@ LOG_HANDLER_SUFFIX_DEFAULT = "%Y%m%d"
 LOG_NUM_DAYS_BACKUP_DEFAULT = 7
 
 
-# set default browser options
-DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()
-DEFAULT_BROWSER_OPTIONS.add_argument("--start-maximized")
-DEFAULT_BROWSER_OPTIONS.add_argument("--incognito")
-DEFAULT_BROWSER_OPTIONS.add_argument("--window-size=1024x768")
-## move window off screen
-# options.add_argument("--window-position=-32000,-32000")
-# options.add_argument('--incognito')
-## for headless browser
-# options.add_argument('--headless')
-# options.add_argument('--disable-gpu')
-# options.add_argument('--no-sandbox')  #needed for headless mode
-# options.add_argument('--disable-dev-shm-usage')
-## extras to simulate a non-headless environment
-# options.add_argument('--remote-debugging-port=9221')
-# options.add_argument('--disable-software-rasterizer')
-
-
-
+LLM_SERVER_LOCAL_ADDR = "http://localhost" # http://192.168.1.214
+LLM_SERVER_PORT = 8000
+# @app.post("/submit/")
+LLM_API_SUBMIT_URL = f"{LLM_SERVER_LOCAL_ADDR}:LLM_SERVER_PORT/submit"
+# @app.get("/result/{job_id}")
+LLM_API_RESULT_URL = f"{LLM_SERVER_LOCAL_ADDR}:LLM_SERVER_PORT/result"
 
 

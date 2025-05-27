@@ -23,10 +23,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 import requests
 from bs4 import BeautifulSoup
 
-from automation import WebAutomation
+from web_automation import *
 
 
-AUTOMATION_NAME = "spires"
+#AUTOMATION_NAME = "spires"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
