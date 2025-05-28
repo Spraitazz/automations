@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import (
     NoSuchElementException,
@@ -7,8 +8,14 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
     ElementClickInterceptedException,
 )
-#from xvfbwrapper import Xvfb
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+import random
+import re
+from xvfbwrapper import Xvfb
 
+from definitions import XVFB_DISPLAY_WIDTH, XVFB_DISPLAY_HEIGHT
 from automation import *
 
 
@@ -21,7 +28,6 @@ DEFAULT_BROWSER_OPTIONS.add_argument("--incognito")
 DEFAULT_BROWSER_OPTIONS.add_argument("--window-size=1024x768")
 ## move window off screen
 # options.add_argument("--window-position=-32000,-32000")
-# options.add_argument('--incognito')
 ## for headless browser
 # options.add_argument('--headless')
 # options.add_argument('--disable-gpu')
@@ -31,32 +37,65 @@ DEFAULT_BROWSER_OPTIONS.add_argument("--window-size=1024x768")
 # options.add_argument('--remote-debugging-port=9221')
 # options.add_argument('--disable-software-rasterizer')
 
+# to pretend im human, for random (uniform) delay (in s) in given range after actions
+CLICK_DELAY_MIN = 2.0
+CLICK_DELAY_MAX = 4.0
+
+DEFAULT_LOAD_WAIT_TIME_S = 10
 
 
 
 #
-# TO DO: un-hardcode xvfb params
+# TO DO: make func of automation to use interruptable sleep (don't care as short here)
 #
+def click_delay(min: float = CLICK_DELAY_MIN, max: float = CLICK_DELAY_MAX):
+    time.sleep(random.uniform(min, max))
+
+
+def move_to_and_click(driver: ChromeDriver, elem: WebElement):
+    ActionChains(driver).move_to_element(elem).pause(
+        random.uniform(0.5, 1.5)
+    ).click().pause(
+        random.uniform(0.5, 1.5)
+    ).perform()
+
+
+def deepest_div(element: WebElement):
+    """recursively go into the first direct descendent div of a given element,
+    returning the deepest div"""
+    divs = element.find_elements(By.XPATH, "./div")
+    if divs:
+        return deepest_div(divs[0])
+    else:
+        return element
+
+
+
+
 class WebAutomation(Automation):
     driver: typing.Optional[ChromeDriver] = None
+    own_xvfb_display: typing.Optional[bool] = False
+    xvfb_display: typing.Optional[int] = -1
 
     def __init__(
         self,
         name: str,
         run_func: typing.Callable,
         config_fpath: str,
-        with_xvfb: bool = False,
+        own_xvfb_display: bool = False,
         xvfb_display: int = -1,
     ):
         super().__init__(name, run_func, config_fpath)
         self.driver = None
-        self.with_xvfb = with_xvfb
+        self.own_xvfb_display = own_xvfb_display
         self.xvfb_display = xvfb_display
 
     #
-    # TO DO: specify correct class for options
+    # TO DO: wrap in try/except - check for 
+    #       selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; 
+    #       For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
     #
-    def init_webdriver(self, options=DEFAULT_BROWSER_OPTIONS) -> ChromeDriver:
+    def init_webdriver(self, options: webdriver.ChromeOptions() = DEFAULT_BROWSER_OPTIONS) -> ChromeDriver:
         driver = webdriver.Chrome(options=options)
         self.driver = driver
         return driver
@@ -86,7 +125,7 @@ class WebAutomation(Automation):
                 self.logger.debug(
                     f"connection error on try {i_try+1}/{num_tries_max}, will retry in {retry_sleep_s} s"
                 )
-                self.interruptable_sleep(retry_sleep_s)
+                self.sleep(retry_sleep_s)
                 i_try += 1
         exc_fstr = f"driver could not get {url} after {num_tries_max} tries"
         self.logger.error(exc_fstr)
@@ -158,8 +197,8 @@ class WebAutomation(Automation):
     def email_exception_handling_wrapper(self, logger: logging.Logger):
 
         try:
-            if self.with_xvfb:
-                with Xvfb(display=self.xvfb_display, width=2560, height=1600) as xvfb:
+            if self.own_xvfb_display:
+                with Xvfb(display=self.xvfb_display, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT) as xvfb:
                     self._run_and_cleanup(logger)
             else:
                 self._run_and_cleanup(logger)

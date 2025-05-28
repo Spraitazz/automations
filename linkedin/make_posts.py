@@ -4,12 +4,9 @@ from linkedin.utils import click_delay, random_scroll, go_to_feed, remove_non_bm
 from linkedin.llm import generate_post
 
 
-
-def start_post_visible(driver) -> bool:
-    pass
-
-
-
+#
+# TO DO: upload image with post
+#
 def make_post(automation: WebAutomation) -> bool:
 
     logger = automation.logger
@@ -54,7 +51,7 @@ def make_post(automation: WebAutomation) -> bool:
         return False    
 
     #
-    # TO DO: automation.go_to() and automation.click()??
+    # TO DO: automation.move_to_and_click() and include extra pause after click
     #
     ActionChains(driver).move_to_element(make_post_button).pause(
             random.uniform(0.5, 1.5)
@@ -83,7 +80,19 @@ def make_post(automation: WebAutomation) -> bool:
     
     try:
         p.send_keys(my_post)
-        click_delay()        
+        click_delay()  
+        
+        #
+        # TO DO: upload image with post
+        #
+        #https://github.com/SeleniumHQ/seleniumhq.github.io/blob/trunk/examples/python/tests/elements/test_file_upload.py#L12-L14
+        #upload_file = os.path.abspath(
+        #os.path.join(os.path.dirname(__file__), "..", "selenium-snapshot.png"))
+        #file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
+        #file_input.send_keys(upload_file)
+        #driver.find_element(By.ID, "file-submit").click()
+        
+              
         post_button = driver.find_element(
         "xpath",
         '//span[contains(@class, "artdeco-button__text") and contains(., "Post")]'

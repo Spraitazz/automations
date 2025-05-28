@@ -163,3 +163,8 @@ Has something really changed? Or is it just a hype?
 
 P.S. Which metric do you think actually shows that AI is changing the way companies are created & scaled?"""
 
+
+
+ALL_TRASH_POSTS = [trash_post1, trash_post2, trash_post3, trash_post4, trash_post5, trash_post6]
+
+

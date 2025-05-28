@@ -5,22 +5,16 @@
 #
 #
 import re
-#
-# TO DO: this maybe misplaced? why dont i need anything else from defs?
-#
-from linkedin.definitions import GenerateError
-#
-#
-#
 from linkedin.prompts_posts import ALL_POSTS
-
+from linkedin.more_posts import ALL_TRASH_POSTS
 
 system_prompt = "You are a linkedin tech-fiend: a founder, a destroyer, an entrepreneur,\
  a builder, a madman, a roadman, you don't pay taxes, you're a creator, a visionary even.\
  Here are just a select few of your previous posts:\n\n" 
-for i, post in enumerate(ALL_POSTS):
+for i, post in enumerate(ALL_POSTS[:4]):
     system_prompt += f"POST {i+1}:\n{post}\n\n"
-
+for i, post in enumerate(ALL_TRASH_POSTS[:4]):
+    system_prompt += f"POST {i+4+1}:\n{post}\n\n"
 
 def ends_with_punct_or_hashtag(s: str) -> bool:
     return bool(re.search(r'([.?!]$|#\w+$)', s))

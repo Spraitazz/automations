@@ -1,16 +1,11 @@
 
 from spires.definitions import *
 
-#
-# TO DO: return dataclass/obj SpiresConfig?
-#
-def load_config(automation: WebAutomation) -> dict:
 
+def load_config(automation: WebAutomation):
     config = {}        
-
     configfile = configparser.ConfigParser(interpolation=None)
-    configfile.read(automation.config_fpath)
-    
+    configfile.read(automation.config_fpath)    
     config["TUTOR_NAME"] = configfile["DEFAULT"]["TUTOR_NAME"].strip().strip('"')
     config["EMAIL"] = configfile["DEFAULT"]["EMAIL"].strip().strip('"')
     config["PASS"] = configfile["DEFAULT"]["PASS"].strip().strip('"')
@@ -25,30 +20,14 @@ def load_config(automation: WebAutomation) -> dict:
     config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
     config["RESPOND_MESSAGES"] = configfile.getboolean(
         "DEFAULT", "RESPOND_MESSAGES", fallback=False
-    )
-    
-    return config
+    )    
+    automation.set_config(config)
     
 
 
 def round_to_nearest_5(x: float):
     return round(x / 5.0) * 5.0
 
-
-#
-# TO DO: move to webautomation
-#
-def click_delay(min: float = CLICK_DELAY_MIN, max: float = CLICK_DELAY_MAX):
-    time.sleep(random.uniform(min, max))
-
-#
-# TO DO: move to webautomation
-#
-def click(driver: ChromeDriver, elem: WebElement):
-    ActionChains(driver).move_to_element(elem).pause(
-        random.uniform(0.5, 1.5)
-    ).click().perform()
-    click_delay()
 
 
 def get_supported_currencies(logger: logging.Logger):
@@ -112,19 +91,6 @@ def update_exchange_rate(currency: str, config: dict, logger: logging.Logger):
     CURRENCY_UPDATED_LAST.update({currency: datetime.now()})
     EXCHANGE_RATES.update({currency: data["conversion_rates"][config["MY_CURRENCY"]]})
     return 0
-
-
-#
-# TO DO: move to webautomation
-#
-def deepest_div(element: WebElement):
-    """recursively go into the first direct descendent div of a given element,
-    returning the deepest div"""
-    divs = element.find_elements(By.XPATH, "./div")
-    if divs:
-        return deepest_div(divs[0])
-    else:
-        return element
 
 
 

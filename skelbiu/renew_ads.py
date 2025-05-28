@@ -1,14 +1,23 @@
 from skelbiu.definitions import *
-from skelbiu.utils import click_delay
 
 
-# this assumes we are already at MY_ADS_URL (redirected by default after logging in)
-def renew_ads(automation: WebAutomation):
+def renew_ads(automation: WebAutomation) -> dict[str, dict]:
+    """Check if any of my ads need renewing, and renew them.
 
-    result = {} #{item id: status_str}
+    I must start at MY_ADS_URL in this function.
+
+    Returns dict with items like {item id: status_dict}, where
+    status_dict is either:
+
+    1. {"status": "renewed", "last_renewed": datetime_renewed}
+    2. {"status": "already_renewed"}
+
+    """
+
+    result = {}
 
     logger = automation.logger
-    driver = automation.driver    
+    driver = automation.driver
 
     table = driver.find_element(By.ID, "adsList")
     rows = table.find_elements(By.TAG_NAME, "tr")
@@ -33,7 +42,7 @@ def renew_ads(automation: WebAutomation):
 
         clicked = automation.driver_try_click(target)
         if not clicked:
-            # one last try?
+            # one last try
             target = driver.find_element(By.ID, "renewID{}".format(item_id))
             target.click()
         click_delay()
@@ -66,8 +75,9 @@ def renew_ads(automation: WebAutomation):
         target.click()
         logger.debug(f"item with id {item_id} renewed")
         click_delay()
-        result[item_id] = {"status": "renewed", "last_renewed": datetime.now().isoformat()}
-    
+        result[item_id] = {
+            "status": "renewed",
+            "last_renewed": datetime.now().isoformat(),
+        }
+
     return result
-        
-        

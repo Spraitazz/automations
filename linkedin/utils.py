@@ -1,24 +1,6 @@
 
 from linkedin.definitions import *
 
-"""
-def send_unhandled_exception_email(bot_name: str):
-
-    from_email = APP_EMAIL
-    to_email = UNHANDLED_EXCEPTION_EMAIL
-
-    msg = MIMEMultipart()
-    msg["From"] = from_email
-    msg["To"] = to_email
-    msg["Subject"] = f"{bot_name} unhandled exception"
-
-    body = "look at logs"
-    msg.attach(MIMEText(body, "plain"))
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(APP_EMAIL, GMAIL_APP_PASS)
-        server.sendmail(from_email, to_email, msg.as_string())
-"""
 
 #
 # TO DO: automation.click_delay
@@ -56,6 +38,62 @@ def scroll_pretend_read(driver: ChromeDriver):
 
 def remove_non_bmp(text: str) -> str:
     return "".join(c for c in text if ord(c) <= 0xFFFF)        
+
+
+def get_session_name(start_time_range: dict[str, Tuple[int, int]]) -> str:
+    
+    session_name = ""
+    
+    current_hour = datetime.now().hour    
+    for name, hour_range in start_time_range.items():
+        if hour_range[0] <= current_hour < hour_range[1]:
+            session_name = name
+            break
+        
+    return session_name
+
+
+def time_until_next_session(start_time_range: dict) -> float:
+    """return time to sleep (in seconds) until next session"""
+
+
+    now = datetime.now()
+    current_hour = now.hour
+
+    # Sort sessions by start hour ascending
+    sessions_sorted = sorted(start_time_range.items(), key=lambda x: x[1][0])
+    num_sessions = len(sessions_sorted)
+
+    # Find the next session start after now
+    next_session = None
+    for i, (name, (start_hour, end_hour)) in enumerate(sessions_sorted):
+        if current_hour < start_hour:
+            next_session = (name, start_hour, end_hour)
+            break
+        elif start_hour <= current_hour < end_hour:
+            if i != num_sessions - 1:
+                next_session = (sessions_sorted[i+1][0], *sessions_sorted[i+1][1])
+                break
+
+    # If no next session today, pick the first session tomorrow
+    if next_session is None:
+        name, (start_hour, end_hour) = sessions_sorted[0]
+        # Calculate next session start as tomorrow at start_hour
+        next_session_start = now.replace(hour=start_hour, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        sleep_seconds = (next_session_start - now).total_seconds()
+        # Then add a random offset within the session duration (in seconds)
+        sleep_seconds += random.uniform(0, (end_hour - start_hour) * 3600)
+        return sleep_seconds
+        
+
+    # get time to sleep until next session start + random offset
+    name, start_hour, end_hour = next_session
+    next_session_start = now.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+    sleep_seconds = (next_session_start - now).total_seconds()
+    sleep_seconds += random.uniform(0, (end_hour - start_hour) * 3600)
+
+    return sleep_seconds
+
 
 
 

@@ -1,4 +1,3 @@
-import re
 
 from definitions import *
 from utils import init_default_logger
@@ -15,32 +14,25 @@ def interruptable_sleep(event: threading.Event, timeout: float, logger: logging.
         logger.debug("stopped by controller")
 
 
-
-"""
-class AutomationState(IntEnum):
-    ON = 0
-    PAUSED = 1
-    STOPPED = 2  # when this is set, the controller can finally clean up (del bots_running[bot_name])
-"""
-
-#
-# TO DO: add AutomationState
-#
 class Automation:
+    """Wrapper for a persistent automation which handles starting,
+    stopping, as well as re-starting and sending an email notification
+    on catching an unhandled exception."""
+
+    logger: typing.Optional[logging.Logger] = None 
+    stop_event: typing.Optional[
+        threading.Event
+    ] = None  # this is to be set by controller to stop automation
+    stopped_event: typing.Optional[
+        threading.Event
+    ] = None  # this is to be set by automation when its done
+    sleep: typing.Optional[typing.Callable] = None
 
     def __init__(
         self,
         name: str,
         run_func: typing.Callable,
-        config_fpath: str,
-        logger: typing.Optional[logging.Logger] = None,
-        stop_event: typing.Optional[
-            threading.Event
-        ] = None,  # this is to be set by controller to stop automation
-        stopped_event: typing.Optional[
-            threading.Event
-        ] = None,  # this is to be set by automation when its done
-        interruptable_sleep: typing.Optional[typing.Callable] = None,
+        config_fpath: str               
     ):
         self.name = name
         self.run_func = run_func
@@ -111,13 +103,7 @@ class Automation:
         self.logs_folder_path = logs_folder_path
         self.logger = logger
         self.stop_event = threading.Event()
-        self.stopped_event = threading.Event()
-        #
-        # TO DO: remove interruptable_sleep and keep sleep only
-        #
-        self.interruptable_sleep = lambda timeout: interruptable_sleep(
-            self.stop_event, timeout, logger
-        )
+        self.stopped_event = threading.Event()        
         self.sleep = lambda timeout: interruptable_sleep(
             self.stop_event, timeout, logger
         )

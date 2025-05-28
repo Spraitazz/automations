@@ -29,15 +29,11 @@ if __name__ == "__main__":
 def run(automation: WebAutomation):
 
     logger = automation.logger
-    config = {}
     try:
-        config = load_config(automation)
+        load_config(automation)
     except:
         logger.exception(f"config not ok")
         return
-    
-
-    automation.set_config(config)
     logger.debug(f"automation started")
 
     #
@@ -53,7 +49,7 @@ def run(automation: WebAutomation):
             break
         except requests.ConnectionError:
             logger.warning(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
-            automation.interruptable_sleep(retry_sleep_s)
+            automation.sleep(retry_sleep_s)
             i_try += 1       
 
     if len(supported_currencies) == 0:
@@ -72,13 +68,13 @@ def run(automation: WebAutomation):
 
         logger.debug("checking for new jobs")
         try:
-            bid_jobs(driver, supported_currencies, config, logger)
+            bid_jobs(automation, supported_currencies)
         except:
             logger.exception("")
         #
         # TO DO: from bids page, it would look more natural if we click on messages instead of go to url
         #
-        if config["RESPOND_MESSAGES"]:
+        if automation.config["RESPOND_MESSAGES"]:
             try:
                 logger.debug("checking for new messages from students")
                 automation.driver_try_get(MESSAGES_URL)
@@ -87,9 +83,9 @@ def run(automation: WebAutomation):
                 logger.exception("")
 
         automation.driver_try_get(DEFAULT_URL)
-        sleep_s = random.uniform(config["MIN_SLEEP_S"], config["MAX_SLEEP_S"])
+        sleep_s = random.uniform(automation.config["MIN_SLEEP_S"], automation.config["MAX_SLEEP_S"])
         logger.debug("returned home and going to sleep for {:.1f} s".format(sleep_s))
-        automation.interruptable_sleep(sleep_s)
+        automation.sleep(sleep_s)
         automation.driver_try_get(HOME_URL)
 
     logger.debug("stop event set by controller, returning")

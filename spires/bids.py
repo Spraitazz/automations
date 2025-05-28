@@ -1,16 +1,19 @@
+
 from spires.definitions import *
 from spires.utils import click_delay, round_to_nearest_5, update_exchange_rate
 
 
-# for each job get: student_name, degree, subject, currency
-# convert MY_CURRENCY to student currency to correctly bid as in MY_BIDS
-# apply with prepared generic bid message
-def bid_jobs(
-    driver: webdriver,
-    supported_currencies: list[str],
-    config: dict,
-    logger: logging.Logger,
-):
+
+def bid_jobs(automation: WebAutomation, supported_currencies: list[str]):
+    """
+    For each job get: student_name, degree, subject, currency
+    convert MY_CURRENCY to student currency to correctly bid as in MY_BIDS
+    apply with prepared generic bid message
+    """
+    
+    logger = automation.logger
+    config = automation.config
+    driver = automation.driver
 
     # allow the site to load possible jobs to bid, if any
     try:

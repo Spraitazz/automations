@@ -1,6 +1,4 @@
 from spires.definitions import *
-from spires.utils import deepest_div, click, click_delay
-
 
 #
 # TO DO: class is overkill, just pass these to select()?
@@ -225,7 +223,7 @@ def check_messages(automation: WebAutomation, chats_seen: list[dict[Any, Any]] =
 
         # chat with student_data.full_name not checked, or has new messages: go into chat
         logger.debug(f"Going into chat with {student_data.full_name}")
-        click(driver, a)
+        move_to_and_click(driver, a)
 
         # wait for div containing messages to load, retrieving it
         messages_divs = []
@@ -259,7 +257,7 @@ def check_messages(automation: WebAutomation, chats_seen: list[dict[Any, Any]] =
                 response = random.choice(GENERIC_RESPONSES)
                 text_field.send_keys(response)
                 click_delay()
-                click(driver, send_icon)
+                move_to_and_click(driver, send_icon)
                 logger.debug(f"Sent {student_data.full_name} my response:\n{response}")
             except:
                 logger.exception(f"Cannot respond")

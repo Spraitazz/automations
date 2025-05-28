@@ -8,37 +8,17 @@ import json
 import time
 from datetime import datetime
 import random
-from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    TimeoutException,
-    StaleElementReferenceException,
-)
-from selenium.webdriver.common.action_chains import ActionChains
 import requests
 from bs4 import BeautifulSoup
 
 from web_automation import *
 
 
-#AUTOMATION_NAME = "spires"
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 LOGIN_URL = "https://spires.co/login"
 HOME_URL = "https://spires.co"
 MESSAGES_URL = "https://spires.co/tutor/messages"
-
-# to pretend im human, for random (uniform) delay (in s) in given range after actions
-CLICK_DELAY_MIN = 2.0
-CLICK_DELAY_MAX = 4.0
-
-DEFAULT_LOAD_WAIT_TIME_S = 10
 
 # exchange rate api: https://www.exchangerate-api.com/docs/free
 SUPPORTED_CURRENCIES_URL = "https://www.exchangerate-api.com/docs/supported-currencies"
@@ -51,14 +31,12 @@ GENERIC_BID_MSG_PLACEHOLDER = "Hi {},\n\nI would like to offer you my support as
 experience helping Physics, Mathematics and Programming students achieve their goals. I have two Masters' \
 degrees, one in theoretical physics and one in machine learning. Look forward to hearing from you!\n\n{}"
 
-
 @dataclass
 class StudentData:
     full_name: str
     name: str
     degree: str
     subject: str
-
 
 #
 # from below for messages
