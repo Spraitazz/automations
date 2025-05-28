@@ -63,10 +63,11 @@ start_time_range = {
 "evening": (18, 20)
 } 
 
+# this combination gives a chance of about 0.5 per day
 post_probability = {
-"morning": 0.2,
-"afternoon": 0.3,
-"evening": 0.5
+"morning": 0.1,
+"afternoon": 0.2,
+"evening": 0.3
 }
 
 min_comments_per_session = 0 
