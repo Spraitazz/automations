@@ -274,8 +274,10 @@ def run_server():
                     f"config_fpath not specified for {name} in AUTOMATIONS at the top of this file"
                 )
                 continue
-            start_ok = start_automation(name, cfg["config_fpath"])
-            if start_ok:
+            automation = init_automation(name, cfg["config_fpath"])            
+            if automation is not None:
+                automation.start(logger)
+                automations_running[automation_name] = automation
                 logger.debug(f"{name} started on startup")
             else:
                 logger.debug(
