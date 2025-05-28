@@ -277,7 +277,7 @@ def run_server():
             automation = init_automation(name, cfg["config_fpath"])            
             if automation is not None:
                 automation.start(logger)
-                automations_running[automation_name] = automation
+                automations_running[name] = automation
                 logger.debug(f"{name} started on startup")
             else:
                 logger.debug(
