@@ -7,9 +7,6 @@ import typing
 from enum import IntEnum
 import configparser
 import time
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 
 BASE_DIR = Path(__file__).resolve().parent 

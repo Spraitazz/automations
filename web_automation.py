@@ -44,7 +44,6 @@ CLICK_DELAY_MAX = 4.0
 DEFAULT_LOAD_WAIT_TIME_S = 10
 
 
-
 #
 # TO DO: make func of automation to use interruptable sleep (don't care as short here)
 #

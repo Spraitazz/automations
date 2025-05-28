@@ -1,4 +1,23 @@
 
-go on remote, check that deploy branch clean, then switch to temp branch
+ON REMOTE MACHINE:
 
+    git switch temp (check that deploy branch clean)
 
+ON WORKING MACHINE:
+
+    git switch deploy
+    git reset --hard master
+    cp deployignore .gitignore
+    git rm -r --cached .
+    git add .
+    
+    make modifications necessary for deploy
+    
+    git commit -m "Remove ignored files from tracking, prepared for deploy"
+    git push jovanis deploy --force
+    
+    git switch master
+    
+ON REMOTE MACHINE
+
+    git switch deploy
