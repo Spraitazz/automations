@@ -72,7 +72,7 @@ def make_post(automation: WebAutomation) -> bool:
     p = div.find_element("xpath", "./p")
     
     logger.debug("going to generate post")
-    my_post = generate_post(logger)    
+    my_post = generate_post(automation)    
     # ChromeDriver doesnt support non-bmp
     my_post = remove_non_bmp(my_post)
     if len(my_post) == 0:

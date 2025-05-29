@@ -122,8 +122,18 @@ def get_post_text(activity_div: WebElement) -> str:
     post_text_cleaned = remove_non_bmp(post_text)
     return post_text_cleaned
     
-
-def comment_on(activity_div: WebElement, automation: WebAutomation) -> bool:
+#
+# To DO: provide prompt with more details:
+#    
+## who posted (person/org?)
+# first select span by CONTAINS class="update-components-actor__title"
+# then go into FIRST children spans recursively until end, get text
+#    
+## their org (if person)
+# first select span by CONTAINS class "update-components-actor__description"
+# go into FIRST children spans recursive until end, get text
+#
+def comment_on(automation: WebAutomation, activity_div: WebElement) -> bool:
     """Simply return True if commented ok, otherwise return False.
     
     
@@ -160,18 +170,7 @@ def comment_on(activity_div: WebElement, automation: WebAutomation) -> bool:
     
     # can comment
     
-    #
-    # To DO: provide prompt with more details:
-    #
-    
-    ## who posted (person/org?)
-    # first select span by CONTAINS class="update-components-actor__title"
-    # then go into FIRST children spans recursively until end, get text
-    
-    ## their org (if person)
-    # first select span by CONTAINS class "update-components-actor__description"
-    # go into FIRST children spans recursive until end, get text
-    
+   
     
     
     # can comment: get text, feed to llm, get comment
@@ -203,7 +202,7 @@ def comment_on(activity_div: WebElement, automation: WebAutomation) -> bool:
         )
         first_p = comment_div.find_element(By.XPATH, "./p[1]")
 
-        my_comment = generate_comment(post_text_cleaned, logger)
+        my_comment = generate_comment(automation, post_text_cleaned)
         # ChromeDriver doesnt support non-bmp
         my_comment = remove_non_bmp(my_comment)
         
@@ -260,6 +259,6 @@ def comment_random_post(automation: WebAutomation, commented_posts: list[str]) -
     if activity_div is None:
         return ""
 
-    return comment_on(activity_div, automation)
+    return comment_on(automation, activity_div)
 
     

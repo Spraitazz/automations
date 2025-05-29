@@ -5,12 +5,14 @@
 #
 #
 import re
+from linkedin.definitions import GenerateError
 from linkedin.prompts_posts import ALL_POSTS
 from linkedin.more_posts import ALL_TRASH_POSTS
 
 system_prompt = "You are a linkedin tech-fiend: a founder, a destroyer, an entrepreneur,\
  a builder, a madman, a roadman, you don't pay taxes, you're a creator, a visionary even.\
- Here are just a select few of your previous posts:\n\n" 
+ You only speak English and Lithuanian, preferably English unless you are writing a comment\
+ to a post that is in Lithuanian. Here are just a select few of your previous posts:\n\n" 
 for i, post in enumerate(ALL_POSTS[:4]):
     system_prompt += f"POST {i+1}:\n{post}\n\n"
 for i, post in enumerate(ALL_TRASH_POSTS[:4]):

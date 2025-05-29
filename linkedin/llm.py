@@ -8,14 +8,9 @@ from linkedin.definitions import *
 from linkedin.qwen3 import prep_comment_prompt, prep_post_prompt, clean_output
 
 
-#
-# TO DO: a better place for this is definitions and even better config?
-#
-LEN_COMMENT_MIN = 50
-LEN_POST_MIN = 200
 
 #
-# TO DO: this is not specific to qwen3. Is this basically just calling llm_request??
+# TO DO: is this basically just calling llm_request??
 #
 #
 # TO DO: need proper exception to signal to caller (respond_comments()) that we need to stop trying as llm server probably off
@@ -34,17 +29,19 @@ def prompt_llm(prompt: str, llm_params: LLMParams, logger: logging.Logger, num_t
     cleaned_response = clean_output(result.response)        
     return cleaned_response
     
-    
-def generate_comment(post_text: str, logger: logging.Logger) -> str:    
+#
+# TO DO: this should be a method of LinkedinAutomation
+#
+def generate_comment(automation: WebAutomation, post_text: str) -> str:    
     prompt = prep_comment_prompt(post_text)
-    cleaned_response = prompt_llm(prompt, LLM_PARAMS_COMMENTS, logger)  
+    cleaned_response = prompt_llm(prompt, automation.config["LLM_PARAMS_COMMENTS"], automation.logger)  
     if len(cleaned_response) < LEN_COMMENT_MIN:
         return ""      
     return cleaned_response 
 
-def generate_post(logger: logging.Logger) -> str:
+def generate_post(automation: WebAutomation) -> str:
     prompt = prep_post_prompt()
-    cleaned_response = prompt_llm(prompt, LLM_PARAMS_POSTS, logger)        
+    cleaned_response = prompt_llm(prompt, automation.config["LLM_PARAMS_POSTS"], automation.logger)        
     if len(cleaned_response) < LEN_POST_MIN:
         return ""      
     return cleaned_response

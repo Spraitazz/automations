@@ -2,12 +2,28 @@
 from linkedin.definitions import *
 
 
-#
-# TO DO: automation.click_delay
-#           ALSO IF READING THIS: centralise all convenience funcs like this, use interruptable here
-#
-def click_delay(min=2.0, max=4.0):
-    time.sleep(random.uniform(min, max))
+def load_config(automation: WebAutomation):
+    config = {}     
+    configfile = configparser.ConfigParser(interpolation=None)
+    configfile.read(automation.config_fpath) 
+    config["EMAIL"] = configfile["DEFAULT"]["EMAIL"]
+    config["PASS"] = configfile["DEFAULT"]["PASS"].strip('"')
+    # using LLMParams for validation here
+    config["LLM_PARAMS_COMMENTS"] = LLMParams(**{
+        "max_tokens": int(configfile["COMMENTS"]["LLM_MAX_TOKENS"]),
+        "temperature": float(configfile["COMMENTS"]["LLM_TEMPERATURE"]),
+        "top_k": int(configfile["COMMENTS"]["LLM_TOP_K"]),
+        "top_p": float(configfile["COMMENTS"]["LLM_TOP_P"]),
+        "repeat_penalty": float(configfile["COMMENTS"]["LLM_REPEAT_PENALTY"]),
+    })
+    config["LLM_PARAMS_POSTS"] = LLMParams(**{
+        "max_tokens": int(configfile["POSTS"]["LLM_MAX_TOKENS"]),
+        "temperature": float(configfile["POSTS"]["LLM_TEMPERATURE"]),
+        "top_k": int(configfile["POSTS"]["LLM_TOP_K"]),
+        "top_p": float(configfile["POSTS"]["LLM_TOP_P"]),
+        "repeat_penalty": float(configfile["POSTS"]["LLM_REPEAT_PENALTY"]),
+    })
+    automation.set_config(config)
 
 #
 # TO DO: pass WebAutomation instance and use automation.sleep
@@ -97,38 +113,7 @@ def time_until_next_session(start_time_range: dict) -> float:
 
 
 
-def login(automation: WebAutomation):
-    
-    logger = automation.logger
-    driver = automation.driver
-    
-    logger.debug("going to log in")
-    automation.driver_try_get(LOGIN_URL)
-    click_delay()
-    
-    #
-    # TO DO: wait for either "username" element, or for feed activity divs
-    # then check url, driver.current_url: MUST BE EITHER LOGIN_URL OR FEED_URL, 
-    # otherwise raise exception?
-    #
-    
-    # get "Remember me" checkbox, CHECKED BY DEFAULT
-    # <input name="rememberMeOptIn" id="rememberMeOptIn-checkbox" class="large-input" checked="" value="true" type="checkbox">
-    # if value="true" - click to uncheck, wait a sec, check that value="false", if true: proceed
 
-    username_inp = driver.find_element(By.ID, "username")
-    username_inp.clear()
-    username_inp.send_keys(EMAIL)
-    click_delay()
-
-    pass_inp = driver.find_element(By.ID, "password")
-    pass_inp.clear()
-    pass_inp.send_keys(PASS)
-    click_delay()
-
-    submit_btn = driver.find_element(By.CSS_SELECTOR, ".btn__primary--large")
-    submit_btn.click()
-    logger.debug("clicked log in")
 
 #
 # TO DO: probably dont need this as a separate func?

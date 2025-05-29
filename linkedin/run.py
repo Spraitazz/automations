@@ -40,21 +40,16 @@ Example:
 """
 from linkedin.definitions import *
 from linkedin.utils import (
+    load_config,
     get_session_name,
     time_until_next_session,
-    login,    
     go_to_feed,
     scroll_pretend_read
 )
+from linkedin.login import login
 from linkedin.comment_posts import comment_random_post 
 from linkedin.make_posts import make_post
-from xvfbwrapper import Xvfb
 
-
-#
-# TO DO: remove, automation.start() handles this
-#
-logger, _ = init_default_logger("linkedin")
 
 # {session_name: valid session start time range in 24h format}
 start_time_range = {
@@ -85,12 +80,13 @@ def run(automation: WebAutomation):
     {max_comments_per_session} random posts, after which it may
     or may not make a single post."""
     
-    #
-    # TO DO: logger = automation.logger (when initialised properly from controller by automation.start)?
-    #
-    automation.logger = logger
-    
-    logger.debug("started")    
+    logger = automation.logger
+    try:
+        load_config(automation)
+    except:
+        logger.exception(f"config not ok")
+        return
+    logger.debug(f"automation started") 
 
     driver = automation.init_webdriver()
     login(automation)
@@ -100,11 +96,7 @@ def run(automation: WebAutomation):
         if go_to_feed(automation):
             break
         logger.warning(f"feed did not load in {DEFAULT_LOAD_WAIT_TIME_S} seconds, sleeping for 60s and retrying")
-        #
-        # TO DO: interruptable or simply automation.sleep
-        #
-        time.sleep(60.)  
-        
+        automation.sleep(60.)          
         
     #
     # TO DO: finish this part in case they add some annoying popup like
@@ -121,37 +113,26 @@ def run(automation: WebAutomation):
         #
         # TO DO: wait for jobs loaded, if loaded, go_to_feed() and continue
         #
-        #
-        # TO DO: automation.sleep(10.)
-        #
-        time.sleep(10.)
+        automation.sleep(10.)
         go_to_feed(automation)
     except:
         logger.exception("")
         
-    #
-    # TO DO: need to clean up above mess?
-    #
+
     driver.get(DEFAULT_URL)
     
     commented_posts = []
     num_posts_today = 0
     while True:
-        # entering this loop, I am at DEFAULT_URL
-        
-        
-        sleep_s = time_until_next_session(start_time_range)       
-        #
-        # TO DO: automation.sleep(sleep_s)
-        #       
+        # entering this loop, I am at DEFAULT_URL       
+        sleep_s = time_until_next_session(start_time_range)            
         logger.debug(f"sleeping for {sleep_s/3600.:.1f} h until next session")
-        time.sleep(sleep_s)      
-        
+        automation.sleep(sleep_s)              
           
         session_name = get_session_name(start_time_range)
         if len(session_name) == 0:
             logger.error(f"UNEXPECTED")
-            time.sleep(60.)
+            automation.sleep(60.)
             continue
             
         logger.info(f"session '{session_name}' started")
@@ -183,7 +164,7 @@ def run(automation: WebAutomation):
                 # TO DO: refresh?                
                 #
                 logger.warning("comment failed, will retry in 30s")
-                time.sleep(30.)
+                automation.sleep(30.)
                 continue
         
             
@@ -200,12 +181,8 @@ def run(automation: WebAutomation):
                 
                 logger.warning("post failed (try {num_tries_post+1}/{num_tries_max_post}), will retry in 30s")
                 num_tries_post += 1
-                #
-                # TO DO: automation.sleep(sleep_s)
-                #       
-                time.sleep(30.)
-                driver.refresh()       
-        
+                automation.sleep(30.)
+                driver.refresh()              
         
         if session_name == "evening":
             num_posts_today = 0
@@ -215,20 +192,7 @@ def run(automation: WebAutomation):
 
 
 if __name__ == "__main__":
-
-    with Xvfb(display=8, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT) as xvfb:
-        
-        automation = WebAutomation(
-            name="linkedin",
-            run_func=run,
-            config_fpath=config_path,
-            with_xvfb=False,
-            xvfb_display=4,
-        )    
-
-        run(automation)
-
-    
+    pass   
     
     
     

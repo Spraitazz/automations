@@ -11,6 +11,7 @@ from llm_server.controller import stop as stop_llm_server
 
 from skelbiu.run import run as run_skelbiu
 from spires.run import run as run_spires
+from linkedin.run import run as run_linkedin
 
 #
 # See example config file provided in configs/skelbiu_example.ini
@@ -46,6 +47,14 @@ xvfb.start()
 #
 # Define your automations below
 #
+linkedin_automation = {
+    "class": WebAutomation,
+    "run_func": run_linkedin,
+    "config_fpath": Path.home() / "automation_configs" / "linkedin" / "config.ini",
+    "own_xvfb_display": False,
+    "run_on_startup": False,
+}
+
 skelbiu_automation = {
     "class": WebAutomation,
     "run_func": run_skelbiu,
@@ -62,7 +71,11 @@ spires_automation = {
     "run_on_startup": False,
 }
 
-AUTOMATIONS = {"skelbiu": skelbiu_automation, "spires": spires_automation}
+AUTOMATIONS = {
+"skelbiu": skelbiu_automation,
+"spires": spires_automation,
+"linkedin": linkedin_automation
+}
 #
 # Define your automations above
 #
