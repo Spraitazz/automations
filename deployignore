@@ -9,7 +9,6 @@ llm_server/prompt_info.csv
 llm_server/prompts/
 skelbiu/my_items.json
 spires/other/
-linkedin/
 
 githubignore
 deployignore
