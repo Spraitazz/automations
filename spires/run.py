@@ -1,9 +1,14 @@
 #
+#
+# TODO: reopen closed messages to annoy people (only those which have my generic msg sent)
+#
+#
+
+#
 # This bot lurks on the bids (default) page, bidding on jobs of interest the correct amount in the client's given currency
 # and sends a generic message (GENERIC_BID_MSG_PLACEHOLDER formatted with student name)
 # apply/remove bids until none, then random sleep (5-10 mins), refresh and repeat
 #
-
 
 #
 # login (if not logged in already)
@@ -14,7 +19,6 @@
 # leave
 # repeat
 #
-
 from spires.definitions import *
 from spires.utils import load_config, get_supported_currencies, login
 from spires.bids import bid_jobs

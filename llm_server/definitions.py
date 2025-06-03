@@ -32,11 +32,11 @@ MODEL_NAME = "Qwen3-14B-Q6_K"
 
 LLM_GGUF_PATH = Path.home() / "llm_ggufs" / "Qwen3-14B-Q6_K.gguf"
 NUM_THREADS_LLM = 8
-CONTEXT_LEN_LLM = 2048
+CONTEXT_LEN_LLM = 4096
 
 LLM_SERVER_HOST = "0.0.0.0"
 # 
-# TO DO: move to controller.py as only used there?
+# TODO: move to controller.py as only used there?
 #
 LLM_SERVER_BASE_URL = f"{LLM_SERVER_HOST}:{LLM_SERVER_PORT}"
 
@@ -48,12 +48,11 @@ PROMPT_DIR = BASE_DIR / "prompts"
 PROMPT_STORE_FPATH = BASE_DIR / "prompt_info.csv"
 
 
-
 NUM_JOBS_MAX = 3
 #
-# TO DO: as not seeing failed generation much (qwen3-14B), and also because it
-#        did not make sense on server-side to retry for same job (too long)
-#        need to check to make sure this is not hardcoded anywhere
+# TODO: as not seeing failed generation much (qwen3-14B), and also because it
+#       did not make sense on server-side to retry for same job (too long)
+#       need to check to make sure this is not hardcoded anywhere
 #
 NUM_MAX_TRIES_GENERATE_DEFAULT = 1
 
@@ -64,15 +63,14 @@ NUM_TOKENS_PROMPT_MAX = CONTEXT_LEN_LLM
 LEN_PROMPT_MAX = NUM_TOKENS_PROMPT_MAX * NUM_CHARACTERS_PER_TOKEN
 
 
-
 # default values to use unless the request specifies either
 MAX_TOKENS_MIN = 10
-MAX_TOKENS_MAX = 512
+MAX_TOKENS_MAX = 1000
 MAX_TOKENS_DEFAULT = 100
 
 TEMPERATURE_MIN = 0.1
 TEMPERATURE_MAX = 10.0
-TEMPERATURE_DEFAULT = 0.9
+TEMPERATURE_DEFAULT = 1.0
 
 TOP_K_MIN = 10
 TOP_K_MAX = 200

@@ -15,6 +15,9 @@ import random
 import re
 from xvfbwrapper import Xvfb
 
+#
+# TODO: fix imports: definitions already imported through automation
+#
 from definitions import XVFB_DISPLAY_WIDTH, XVFB_DISPLAY_HEIGHT
 from automation import *
 
@@ -45,7 +48,7 @@ DEFAULT_LOAD_WAIT_TIME_S = 10
 
 
 #
-# TO DO: make func of automation to use interruptable sleep (don't care as short here)
+# TODO: make func of automation to use interruptable sleep (don't care as short sleeps here)
 #
 def click_delay(min: float = CLICK_DELAY_MIN, max: float = CLICK_DELAY_MAX):
     time.sleep(random.uniform(min, max))
@@ -69,8 +72,6 @@ def deepest_div(element: WebElement):
         return element
 
 
-
-
 class WebAutomation(Automation):
     driver: typing.Optional[ChromeDriver] = None
     own_xvfb_display: typing.Optional[bool] = False
@@ -79,18 +80,16 @@ class WebAutomation(Automation):
     def __init__(
         self,
         name: str,
-        run_func: typing.Callable,
         config_fpath: str,
         own_xvfb_display: bool = False,
         xvfb_display: int = -1,
     ):
-        super().__init__(name, run_func, config_fpath)
-        self.driver = None
+        super().__init__(name, config_fpath)
         self.own_xvfb_display = own_xvfb_display
         self.xvfb_display = xvfb_display
 
     #
-    # TO DO: wrap in try/except - check for 
+    # TODO: wrap in try/except - check for 
     #       selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; 
     #       For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
     #
@@ -99,17 +98,53 @@ class WebAutomation(Automation):
         self.driver = driver
         return driver
 
-    def cleanup(self, logger: logging.Logger):
+
+    def run(self):
+        # Setup signal handlers for graceful shutdown
+        #signal.signal(signal.SIGINT, self.signal_handler)
+        #signal.signal(signal.SIGTERM, self.signal_handler)
+        self.run_func(self)
+
+    def cleanup(self, controller_logger: logging.Logger):
         try:
             if self.driver is not None:
                 self.driver.quit()
             else:
-                logger.error("not expecting to be here")
+                controller_logger.error("not expecting to be here")
         except:
-            logger.exception("")
+            controller_logger.exception("")
         finally:
             self.driver = None
-            super().cleanup(logger)
+            super().cleanup(controller_logger)
+      
+      
+    def _run_and_cleanup(self, controller_logger: logging.Logger):
+        """
+        Currently in default browser options not running headless,
+        so DISPLAY must be set, otherwise ChromeDriver wont work.
+        """
+        
+        DISPLAY_ENV = os.environ.get("DISPLAY", None)
+        if DISPLAY_ENV is None:
+            controller_logger.error("DISPLAY env var is not set")
+        else:
+            controller_logger.debug(f"DISPLAY={DISPLAY_ENV}")
+            
+        self.run()
+        controller_logger.debug(f"{self.name} stopped by return from run func")
+        self.cleanup(controller_logger)
+            
+            
+    def email_exception_handling_wrapper(self, controller_logger: logging.Logger):
+        try:
+            if self.own_xvfb_display:
+                with Xvfb(display=self.xvfb_display, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT) as xvfb:
+                    self._run_and_cleanup(controller_logger)
+            else:
+                self._run_and_cleanup(controller_logger)
+        except:
+            controller_logger.exception("")
+            self._on_exception(controller_logger)   
 
     def driver_try_get(self, url: str):
 
@@ -130,19 +165,24 @@ class WebAutomation(Automation):
         self.logger.error(exc_fstr)
         raise Exception(exc_fstr)
 
-    def driver_try_click(self, elem: WebElement):
-
+    #
+    # TODO: on some shitty sites might have multiple offenders - try up to Nmax times
+    #
+    def driver_try_click(self, elem: WebElement, second_try=False):
+        """
+        Make two attempts to click, in the first instance removing any
+        offending elements in the way, and then re-trying.
+        """
+        
         try:
             elem.click()
             return True
         except ElementClickInterceptedException as e:
-            # Try to extract the intercepting element
+            # Extract the intercepting element
             match = re.search(r"Other element would receive the click: (.+?)\n", str(e))
             if match:
                 html_snippet = match.group(1)
-                # print("Intercepting element:", html_snippet)
-
-                # Try to build a selector from id > class > tag
+                # Build a selector from id > class > tag
                 id_match = re.search(r'id="([^"]+)"', html_snippet)
                 class_match = re.search(r'class="([^"]+)"', html_snippet)
                 tag_match = re.search(r"<(\w+)", html_snippet)
@@ -171,7 +211,10 @@ class WebAutomation(Automation):
                         }}
                         """
                     )
-                    time.sleep(1.0)
+                    self.sleep(1.0)
+                    # one more try
+                    if not second_try:
+                        return self.driver_try_click(elem, second_try=True)
                 else:
                     pass
                     # Could not construct a selector from the intercepted element
@@ -193,14 +236,5 @@ class WebAutomation(Automation):
             # No child found, this is the deepest element
             return element
 
-    def email_exception_handling_wrapper(self, logger: logging.Logger):
-
-        try:
-            if self.own_xvfb_display:
-                with Xvfb(display=self.xvfb_display, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT) as xvfb:
-                    self._run_and_cleanup(logger)
-            else:
-                self._run_and_cleanup(logger)
-        except:
-            self._on_exception(logger)
+    
       

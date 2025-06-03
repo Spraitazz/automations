@@ -1,193 +1,227 @@
 
+from skelbiu.definitions import *
+from skelbiu.login_page import LoginPage 
+from skelbiu.items_page import ItemsPage
+from skelbiu.test_helpers import TestHelpers
 
-class SkelbiuAutomation:
-    """Main automation class for marketplace operations"""
+class SkelbiuAutomation(WebAutomation):
+    """Main automation class for skelbiu operations"""
     
-    def __init__(self, automation: WebAutomation):
-        self.driver = None
-        self.automation = AutomationController(
-            check_interval_hours=24,  # Check every 24 hours
-            renewal_days_threshold=7   # Renew items older than 7 days
-        )
-        self.login_page = None
-        self.items_page = None
-        
-        """
-        # Configuration - Update these with your actual values
-        self.config = {
-            'login_url': 'https://marketplace.example.com/login',
-            'items_url': 'https://marketplace.example.com/my-ads',
-            'email': 'your_email@example.com',
-            'password': 'your_password',
-            'headless': True  # Set to False for debugging
-        }
-        """
-        
-    def load_config(self):
-        pass
+    AUTOMATION_NAME = "skelbiu"
     
-    def setup_driver(self):
-        """Initialize Chrome WebDriver"""
+    def __init__(self, config_fpath: Path, own_xvfb_display: bool, xvfb_display: int):
+    
+        super().__init__(
+            name = self.AUTOMATION_NAME,
+            config_fpath=config_fpath,
+            own_xvfb_display=own_xvfb_display,
+            xvfb_display=xvfb_display
+        )   
+        
         try:
-            chrome_options = Options()
-            if self.config['headless']:
-                chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--window-size=1920,1080")
-            chrome_options.add_argument("--disable-gpu")
-            chrome_options.add_argument("--disable-extensions")
+            self.load_config() 
+        except:
+            self.logger.exception("config not ok")
+            return        
+
+    
+    def load_config(self):                     
+        config = {}
+        configfile = configparser.ConfigParser(interpolation=None)
+        configfile.read(self.config_fpath)
+        config["EMAIL"] = configfile["DEFAULT"]["EMAIL"].strip().strip('"')
+        config["PASS"] = configfile["DEFAULT"]["PASS"].strip().strip('"')
+        config["MIN_SLEEP_S"] = float(configfile["DEFAULT"]["MIN_SLEEP_S"])
+        config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
+        self.config = config
+        
+        
+    #
+    # TODO: ideally return ItemStore, as values are not just str, but datetime in iso format
+    #
+    def load_item_store(self):
+        """
+        Load my item store, items for which I have a record already when each item
+        was last renewed, from MY_ITEMS_STORE_FPATH, currently a json formatted dict
+        defined in skelbiu.definitions
+        """
+
+        stored_items = {}
+        with open(MY_ITEMS_STORE_FPATH, "r", encoding="utf-8") as f:
+            try:
+                stored_items = json.load(f)
+            except:
+                # no items stored yet
+                pass
+        self.stored_items = stored_items
+        
+        
+    def check_need_renew(self) -> bool:
+        """
+        Check if I need to go on site, I go if either:
+
+        1. Any of my items have a last updated date > 25h ago
+        2. Any of my items have an unknown last updated date
+        """
+        check_renew = False
+        if len(self.stored_items) == 0:
+            check_renew = True
+        else:
+            now = datetime.now()
+            for item_id_str, last_updated_str in self.stored_items.items():
+                if len(last_updated_str) < 2:
+                    check_renew = True
+                    break
+                datetime_last_updated = datetime.fromisoformat(last_updated_str)
+                if (now - datetime_last_updated).total_seconds() > 90000.0:
+                    check_renew = True
+                    break
+        return check_renew
+        
+    #
+    # TODO: better name for result from self.items_page.check_and_renew()
+    #
+    def update_item_store(self, result: dict):
+        """
+        Update my items based on return result of calling renew_ads(), passed as
+        result arg, as well as my stored_items loaded in run.py
+        """
+
+        stored_items_cur = {}
+        for item_id, status_dict in result.items():
+            if status_dict["status"] == "renewed":
+                stored_items_cur[item_id] = status_dict["last_renewed"]
+                self.logger.debug(
+                    f"updating item {item_id} renewed last: {status_dict['last_renewed']}"
+                )
+            else:
+                # was already renewed
+                if item_id in self.stored_items:
+                    stored_items_cur[item_id] = self.stored_items[item_id]
+                else:
+                    stored_items_cur[item_id] = "-"
+
+        self.logger.debug(
+            f"will write stored_items_cur: {stored_items_cur} to {MY_ITEMS_STORE_FPATH}"
+        )
+        with open(MY_ITEMS_STORE_FPATH, "w", encoding="utf-8") as f:
+            json.dump(stored_items_cur, f)
             
-            self.driver = webdriver.Chrome(options=chrome_options)
-            self.driver.implicitly_wait(10)
-            
-            # Initialize page objects
-            self.login_page = LoginPage(self.driver)
-            self.items_page = ItemsPage(self.driver)
-            
-            logger.info("WebDriver initialized successfully")
+        #
+        # TODO: dont need to load again really, can be done better
+        #
+        self.load_item_store()  
+        
+
+    def check_logged_in(self):
+        self.driver_try_get(MY_ADS_URL)
+        try:
+            self.wait.until(lambda driver: "signin" not in driver.current_url.lower())
+            self.logger.debug("already logged in")
             return True
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize WebDriver: {e}")
+        except TimeoutException:
             return False
     
-    def cleanup_driver(self):
-        """Clean up WebDriver resources"""
-        if self.driver:
-            try:
-                self.driver.quit()
-                logger.info("WebDriver cleaned up successfully")
-            except Exception as e:
-                logger.error(f"Error cleaning up WebDriver: {e}")
     
     def perform_login(self):
-        """Perform login operation"""
         try:
-            logger.info("Attempting to login...")
-            self.login_page.navigate_to_login(self.config['login_url'])
+            self.logger.info("Attempting to login...")
+            self.login_page.navigate_to_login()
             
             success = self.login_page.login(
-                self.config['email'], 
-                self.config['password']
+                self.config['EMAIL'], 
+                self.config['PASS']
             )
             
             if success:
-                logger.info("Login successful")
+                self.logger.info("Login successful")
                 return True
             else:
-                logger.error("Login failed")
+                self.logger.error("Login failed")
                 return False
                 
         except Exception as e:
-            logger.error(f"Exception during login: {e}")
+            self.logger.error(f"Exception during login: {e}")
             return False
+   
     
     def check_and_renew_items(self):
         """Check items and renew if necessary"""
         try:
-            logger.info("Navigating to items page...")
-            self.items_page.navigate_to_items(self.config['items_url'])
-            
-            # Get all items details and update cache
-            all_items = []
-            page_count = 1
-            
-            while True:
-                logger.info(f"Processing page {page_count}")
-                items_on_page = self.items_page.get_all_items_details()
-                all_items.extend(items_on_page)
-                
-                if not self.items_page.has_next_page():
-                    break
-                    
-                if not self.items_page.go_to_next_page():
-                    break
-                    
-                page_count += 1
-            
-            # Update stored items cache
-            self.automation.update_stored_items(all_items)
-            
-            # Renew eligible items
-            renewed_count = 0
-            for page_num in range(1, page_count + 1):
-                if page_num > 1:
-                    # Navigate back to specific page if needed
-                    self.items_page.navigate_to_items(self.config['items_url'])
-                
-                page_renewed = self.items_page.renew_all_eligible_items(
-                    self.automation.renewal_days_threshold
-                )
-                renewed_count += page_renewed
-            
-            logger.info(f"Total items renewed: {renewed_count}")
-            return True
-            
+            self.logger.info("Navigating to items page...")
+            self.items_page.navigate_to_items()         
+            renew_result = self.items_page.check_and_renew()
+            self.update_item_store(renew_result)          
+            return True            
         except Exception as e:
-            logger.error(f"Exception during item renewal: {e}")
+            self.logger.error(f"Exception during item renewal: {e}")
             TestHelpers.take_screenshot(self.driver, "renewal_error")
             return False
     
+    
     def run_automation_cycle(self):
         """Run a single automation cycle"""
-        try:
-            if not self.setup_driver():
-                return False
-            
-            if not self.perform_login():
-                logger.error("Could not login, will retry later")
-                return False
+        self.logger.info("Starting automation cycle") 
+        try:                    
+            if not self.check_logged_in():              
+                if not self.perform_login():
+                    self.logger.error("Could not login, will retry later")
+                    return False
+            else:
+                self.logger.debug("Already logged in")
             
             if not self.check_and_renew_items():
-                logger.error("Failed to check/renew items")
+                self.logger.error("Failed to check/renew items")
                 return False
             
-            logger.info("Automation cycle completed successfully")
+            self.logger.info("Automation cycle completed successfully")
             return True
             
         except Exception as e:
-            logger.error(f"Exception in automation cycle: {e}")
+            self.logger.error(f"Exception in automation cycle: {e}")
             return False
-        finally:
-            self.cleanup_driver()
+           
     
     def run(self):
-        """Main automation loop"""
-        logger.info("Starting marketplace automation...")
+        """
+        Main automation loop:
         
-        # Setup signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, self.signal_handler)
-        signal.signal(signal.SIGTERM, self.signal_handler)
+        1. check need renew
         
-        while not self.automation.stop_event.is_set():
-            try:
-                if check_need_renew(self.automation.stored_items):
-                    logger.info("Going to check my ads")
-                    
-                    success = self.run_automation_cycle()
-                    
-                    if not success:
-                        logger.error("Automation cycle failed, sleeping for 60s before retry")
-                        self.automation.sleep(60.0)
-                        continue
-                    
-                    # Sleep for the configured interval
-                    sleep_hours = self.automation.check_interval_hours
-                    logger.info(f"Sleeping for {sleep_hours} hours until next check")
-                    self.automation.sleep(sleep_hours * 3600)  # Convert to seconds
-                else:
-                    logger.info("No renewal needed, sleeping for 1 hour")
-                    self.automation.sleep(3600)  # Sleep for 1 hour
-                    
-            except Exception as e:
-                logger.error(f"Unexpected error in main loop: {e}")
-                self.automation.sleep(60.0)  # Sleep for 1 minute on error
+
+        only go on site if:
+
+        (A): I have no items in my item store
+        (B): one of my items has not been renewed in more than 25h
+        (C): one of my items has an unknown last renewed datetime ("-")
+
+        item store is json file at [MY_ITEMS_STORE_FPATH in definitions.py]
         
-        logger.info("Automation stopped")
+        
+        """        
+        self.logger.info("Starting automation...")     
+        self.init_webdriver()
+        self.wait = WebDriverWait(self.driver, DEFAULT_LOAD_WAIT_TIME_S) 
+        self.load_item_store()        
+        self.login_page = LoginPage(self)
+        self.items_page = ItemsPage(self)                 
+        while not self.stop_event.is_set():
+            if self.check_need_renew():
+                self.logger.info("Going to check my ads")                
+                success = self.run_automation_cycle()                
+                if not success:
+                    self.logger.error("Automation cycle failed, sleeping for 60s before retry")
+                    self.sleep(60.0)
+                    continue
+            else:
+                self.logger.info("will not check my ads this time")
+                
+            sleep_s = random.uniform(
+                self.config["MIN_SLEEP_S"], self.config["MAX_SLEEP_S"]
+            )
+            self.logger.info("going home to sleep for {:.1f} s".format(sleep_s))
+            self.driver_try_get(DEFAULT_URL)
+            self.sleep(sleep_s)       
+        self.logger.info("Automation stopped")
     
-    def signal_handler(self, signum, frame):
-        """Handle shutdown signals gracefully"""
-        logger.info(f"Received signal {signum}, shutting down gracefully...")
-        self.automation.stop()
-        self.cleanup_driver()
+ 

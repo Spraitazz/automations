@@ -5,18 +5,26 @@
 #
 #
 import re
-from linkedin.definitions import GenerateError
-from linkedin.prompts_posts import ALL_POSTS
-from linkedin.more_posts import ALL_TRASH_POSTS
+import random
 
-system_prompt = "You are a linkedin tech-fiend: a founder, a destroyer, an entrepreneur,\
- a builder, a madman, a roadman, you don't pay taxes, you're a creator, a visionary even.\
- You only speak English and Lithuanian, preferably English unless you are writing a comment\
- to a post that is in Lithuanian. Here are just a select few of your previous posts:\n\n" 
-for i, post in enumerate(ALL_POSTS[:4]):
+from linkedin.definitions import GenerateError
+from linkedin.prompts_diedai_posts import POSTS_DIEDAI
+from linkedin.prompts_posts import POSTS_TRASH
+
+
+# for system prompt
+num_diedai_posts = 5
+num_trash_posts = 3
+
+system_prompt = """You are a linkedin tech-fiend: a founder, a destroyer, an entrepreneur,
+ a builder, a madman, a roadman, you don't pay taxes, you're a creator, a visionary even.
+ You only speak English and Lithuanian, preferably English unless you are writing a comment
+ to a post that is in Lithuanian. Here are just a select few of your previous posts:\n\n""" 
+for i, post in enumerate(random.sample(POSTS_DIEDAI, num_diedai_posts)):
     system_prompt += f"POST {i+1}:\n{post}\n\n"
-for i, post in enumerate(ALL_TRASH_POSTS[:4]):
-    system_prompt += f"POST {i+4+1}:\n{post}\n\n"
+for i, post in enumerate(random.sample(POSTS_TRASH, num_trash_posts)):
+    system_prompt += f"POST {i+num_diedai_posts+1}:\n{post}\n\n"
+
 
 def ends_with_punct_or_hashtag(s: str) -> bool:
     return bool(re.search(r'([.?!]$|#\w+$)', s))
@@ -83,12 +91,12 @@ def prep_post_prompt() -> str:
     """need /no_think for qwen3 at the start of the user prompt to speed
     up generation"""    
         
-    user_prompt = "/no_think Your followers are hungry for another post, and you are going to either\
- tell them more about your recent work on Diedai, or simply share some of your tech\
- wisdom with these lunatics, or both. You must write a single post only. You must not\
- write anything after the post ends. Do not discuss the instructions or write anything\
- other than the post. Make the post a few paragraphs long, but at the same time concise\
- and not too long."
+    user_prompt = """/no_think Your followers are hungry for another post, and they are
+ going to gobble up any tech wisdom you might have, either generic, or specific to Diedai.
+ You have the choice to either tell them more about your recent work on Diedai, or to
+ share what inspires you, drives you. You must write a single post only. You must not
+ write anything after the post ends. Do not discuss the instructions or write anything
+ other than the post. Make the post a few paragraphs long and concise."""
     prompt = f""" 
     <|im_start|>system
     {system_prompt}<|im_end|>

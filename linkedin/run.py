@@ -72,6 +72,9 @@ num_max_posts_per_day = 1
 num_tries_max_post = 2
 
 
+#
+# TODO: check on starting if llm server is on, notify and stop if not
+#
 def run(automation: WebAutomation):
     """This linkedin automation works at normal times - morning,
     afternoon, or evening. It waits for the next working period,
@@ -160,9 +163,6 @@ def run(automation: WebAutomation):
                 commented_posts.append(commented_post_text)
                 scroll_pretend_read(driver)
             else:
-                #
-                # TO DO: refresh?                
-                #
                 logger.warning("comment failed, will retry in 30s")
                 automation.sleep(30.)
                 continue

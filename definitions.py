@@ -4,7 +4,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import threading
 import typing
-from enum import IntEnum
+#from enum import IntEnum
 import configparser
 import time
 
@@ -35,7 +35,7 @@ XVFB_DISPLAY_WIDTH = 2560
 XVFB_DISPLAY_HEIGHT = 1600
 
 #
-# TO DO: this should not be here
+# TODO: this should not be here
 #
 LLM_SERVER_LOCAL_ADDR = "http://192.168.1.214" # "http://localhost" 
 LLM_SERVER_PORT = 8000

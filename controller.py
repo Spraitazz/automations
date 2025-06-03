@@ -3,13 +3,14 @@ import socket
 from definitions import *
 from utils import init_default_logger
 from automation import Automation
-from web_automation import WebAutomation, Xvfb
+from web_automation import WebAutomation #, Xvfb
 
 from llm_server.definitions import LLM_SERVER_BASE_URL
 from llm_server.controller import start as start_llm_server
 from llm_server.controller import stop as stop_llm_server
 
-from skelbiu.run import run as run_skelbiu
+#from skelbiu.run import run as run_skelbiu
+from skelbiu.automation import SkelbiuAutomation
 from spires.run import run as run_spires
 from linkedin.run import run as run_linkedin
 
@@ -41,8 +42,8 @@ llm_server_on = False
 # If you need automations to each have their own display,
 # comment the two lines below and set own_xvfb_display = True
 #
-xvfb = Xvfb(display=3, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT)
-xvfb.start()
+#xvfb = Xvfb(display=3, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT)
+#xvfb.start()
 
 #
 # Define your automations below
@@ -51,23 +52,33 @@ linkedin_automation = {
     "class": WebAutomation,
     "run_func": run_linkedin,
     "config_fpath": Path.home() / "automation_configs" / "linkedin" / "config.ini",
-    "own_xvfb_display": False,
+    "own_xvfb_display": True,
     "run_on_startup": False,
 }
 
+'''
 skelbiu_automation = {
     "class": WebAutomation,
     "run_func": run_skelbiu,
     "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
-    "own_xvfb_display": False,
+    "own_xvfb_display": True,
     "run_on_startup": False,
 }
+'''
+
+skelbiu_automation = {
+    "class": SkelbiuAutomation,
+    "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
+    "own_xvfb_display": True,
+    "run_on_startup": False,
+}
+
 
 spires_automation = {
     "class": WebAutomation,
     "run_func": run_spires,
     "config_fpath": Path.home() / "automation_configs" / "spires" / "config.ini",
-    "own_xvfb_display": False,
+    "own_xvfb_display": True,
     "run_on_startup": False,
 }
 
@@ -104,17 +115,40 @@ def init_automation(automation_name: str, config_fpath: str) -> Automation:
             xvfb_display_counter = xvfb_display_counter + 1
         automation = AUTOMATIONS[automation_name]["class"](
             name=automation_name,
-            run_func=AUTOMATIONS[automation_name]["run_func"],
             config_fpath=config_fpath,
             own_xvfb_display=own_xvfb_display,
             xvfb_display=xvfb_display,
         )
+        #
+        # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
+        #
+        automation.run_func = AUTOMATIONS[automation_name]["run_func"]
+        
     elif AUTOMATIONS[automation_name]["class"] == Automation:
         automation = AUTOMATIONS[automation_name]["class"](
-            name=automation_name,
-            run_func=AUTOMATIONS[automation_name]["run_func"],
-            config_fpath=config_fpath,
+            name=automation_name,            
+            config_fpath=config_fpath
         )
+        #
+        # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
+        #
+        automation.run_func = AUTOMATIONS[automation_name]["run_func"]
+        
+    else:
+        #
+        # TODO: currently only skelbiu, refactor to all
+        #
+        xvfb_display = -1
+        own_xvfb_display = AUTOMATIONS[automation_name].get("own_xvfb_display", False)
+        if own_xvfb_display:
+            xvfb_display = xvfb_display_counter
+            xvfb_display_counter = xvfb_display_counter + 1
+        automation = AUTOMATIONS[automation_name]["class"](
+            config_fpath=config_fpath,
+            own_xvfb_display=own_xvfb_display,
+            xvfb_display=xvfb_display
+        )
+        
 
     return automation
 
@@ -143,7 +177,6 @@ def start_automation(automation_name: str, conn: socket.socket, config_fpath: st
 
     automation = init_automation(automation_name, config_fpath)
     if automation is not None:
-
         automation.start(logger)
         automations_running[automation_name] = automation
 
@@ -166,8 +199,8 @@ def stop_automation(automation_name: str, conn: socket.socket):
         return
 
     #
-    # TO DO: set max wait time and kill everything if automation cant exit before that
-    # TO DO: this actually doesn't work as socket is closed before conn.sendall
+    # TODO: set max wait time and kill everything if automation cant exit before that
+    # TODO: this actually doesn't work as socket is closed before conn.sendall
     #
     def wait_for_stopped(automation_name: str):
         automation = automations_running[automation_name]

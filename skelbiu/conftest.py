@@ -27,6 +27,9 @@ def driver_config():
 def driver(driver_config):
     """Create and teardown WebDriver instance for each test"""
     driver = webdriver.Chrome(options=driver_config)
+    #
+    # TODO: why this doesnt work without the implciit wait?
+    #
     driver.implicitly_wait(10)
     yield driver
     driver.quit()
@@ -41,27 +44,8 @@ def test_credentials():
         "invalid_password": "fs!4%ekski7r"
     }
 
-@pytest.fixture
-def marketplace_urls():
-    """Marketplace URLs - replace with actual URLs"""
-    return {
-        "base_url": BASE_URL,
-        "login_url": LOGIN_URL,
-        "dashboard_url": MY_ADS_URL
-    }
 
-
-
-
-"""
-@pytest.fixture
-def driver():
-    driver = webdriver.Chrome()
-    yield driver
-    driver.quit()
-
-
-    
+"""    
 @pytest.fixture
 def mock_driver(request):
     simulate_disconnected = getattr(request, "param", False)

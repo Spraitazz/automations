@@ -9,11 +9,12 @@ llm = None
 llm_worker_thread = None
 llm_server_thread = None
 
-#
-# TO DO: unify logging - currently both passed as argument and used through global LOGGER_NAME
-#
+
 def start(controller_logger: logging.Logger):
-    """start LLM, worker and uvicorn server to serve FastAPI app defined in server.py"""    
+    """
+    Start LLM, worker and uvicorn server to serve FastAPI app
+    defined in server.py
+    """    
     
     global llm
     global llm_worker_thread
@@ -47,12 +48,15 @@ def start(controller_logger: logging.Logger):
     
     
 # 
-# TO DO: wait for server to stop before stopping worker
-# TO DO 2: wait for worker to stop??????
+# TODO: wait for server to stop before stopping worker
+#
+# TODO: wait for worker to stop?
 #
 def stop(controller_logger: logging.Logger):
-    """First stop the server, worker might still be working,
-    then stop the worker"""
+    """
+    First stop the server, worker might still be working,
+    then stop the worker.
+    """
 
     global llm
     global llm_worker_thread

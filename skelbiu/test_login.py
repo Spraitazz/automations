@@ -2,12 +2,12 @@
 
 import pytest
 #import time
-from skelbiu.login import LoginPage
+from skelbiu.login_page import LoginPage
 
 class TestLoginFunctionality:
     """Test cases for login functionality using TDD approach"""
     
-    def test_navigate_to_login_page(self, driver, marketplace_urls):
+    def test_navigate_to_login_page(self, driver):
         """Test 1: Verify navigation to login page"""
         # Arrange
         login_page = LoginPage(driver)
@@ -19,7 +19,7 @@ class TestLoginFunctionality:
         assert "signin" in driver.current_url.lower()
         assert driver.title  # Page should have a title
     
-    def test_login_page_elements_present(self, driver, marketplace_urls):
+    def test_login_page_elements_present(self, driver):
         """Test 2: Verify all login page elements are present"""
         # Arrange
         login_page = LoginPage(driver)
@@ -35,35 +35,37 @@ class TestLoginFunctionality:
         assert password_field.is_displayed()
         assert login_button.is_displayed()
     
-    def test_valid_login_success(self, driver, marketplace_urls, test_credentials):
+    def test_valid_login_success(self, driver, test_credentials):
         """Test 3: Verify successful login with valid credentials"""
         # Arrange
         login_page = LoginPage(driver)
         login_page.navigate_to_login()
         
         # Act
-        login_page.login(
+        login_success = login_page.login(
             test_credentials["valid_email"],
             test_credentials["valid_password"]
         )
         
         # Assert
+        assert login_success is True
         assert login_page.is_login_successful()
 
     
-    def test_invalid_credentials_login_failure(self, driver, marketplace_urls, test_credentials):
+    def test_invalid_credentials_login_failure(self, driver, test_credentials):
         """Test 4: Verify login failure with invalid email"""
         # Arrange
         login_page = LoginPage(driver)
         login_page.navigate_to_login()
         
         # Act
-        login_page.login(
+        login_success = login_page.login(
             test_credentials["invalid_email"],
             test_credentials["invalid_password"]
         )
         
         # Assert
+        assert not login_success is True
         assert not login_page.is_login_successful()
         error_message = login_page.get_error_message()
         assert error_message is not None
