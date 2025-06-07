@@ -3,17 +3,11 @@
 # TODO: common things for web automations -> better place in WebAutomations?
 #
 #
-
-import os
-from pathlib import Path
-from datetime import datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-#import logging
 
-from skelbiu.definitions import THIS_DIR_PATH
+from skelbiu.definitions import *
 
-#logger = logging.getLogger(__name__)
 
 class TestHelpers:
     """Utility class for common test operations"""
