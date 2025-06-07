@@ -67,7 +67,9 @@ def deepest_div(element: WebElement):
     else:
         return element
 
-
+#
+# TODO: own_xvfb_display -> use_xvfb_display
+#
 class WebAutomation(Automation):
     driver: typing.Optional[ChromeDriver] = None
     own_xvfb_display: typing.Optional[bool] = False

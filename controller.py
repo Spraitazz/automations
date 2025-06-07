@@ -37,13 +37,6 @@ automations_running = {}
 xvfb_display_counter = 30
 llm_server_on = False
 
-# Currently using common xvfb display
-#
-# If you need automations to each have their own display,
-# comment the two lines below and set own_xvfb_display = True
-#
-#xvfb = Xvfb(display=3, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT)
-#xvfb.start()
 
 #
 # Define your automations below
@@ -56,23 +49,12 @@ linkedin_automation = {
     "run_on_startup": False,
 }
 
-'''
-skelbiu_automation = {
-    "class": WebAutomation,
-    "run_func": run_skelbiu,
-    "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
-    "own_xvfb_display": True,
-    "run_on_startup": False,
-}
-'''
-
 skelbiu_automation = {
     "class": SkelbiuAutomation,
     "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
     "own_xvfb_display": True,
     "run_on_startup": False,
 }
-
 
 spires_automation = {
     "class": WebAutomation,
