@@ -15,10 +15,6 @@ import random
 import re
 from xvfbwrapper import Xvfb
 
-#
-# TODO: fix imports: definitions already imported through automation
-#
-from definitions import XVFB_DISPLAY_WIDTH, XVFB_DISPLAY_HEIGHT
 from automation import *
 
 
@@ -146,6 +142,10 @@ class WebAutomation(Automation):
             controller_logger.exception("")
             self._on_exception(controller_logger)   
 
+    #
+    # TODO: (screenshots/error1.png) - exception not raised? Check if 
+    #       have driver_try_get() in try/except block? 
+    #
     def driver_try_get(self, url: str):
 
         num_tries_max = 3
