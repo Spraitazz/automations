@@ -8,9 +8,9 @@ A python wrapper for running persistent automations.
 
 What it does - provided automation name, config, run() method, it:
 
-    1. Persistently runs automation, wrapping run in try catch with basic email and restart handling
-    
-    2. Deals with logs, control automations through terminal
+1. Persistently runs automation, wrapping run in try catch with basic email and restart handling
+
+2. Deals with logs, control automations through terminal
 
 
 ## Getting Started
