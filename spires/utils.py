@@ -1,11 +1,10 @@
-
 from spires.definitions import *
 
 
 def load_config(automation: WebAutomation):
-    config = {}        
+    config = {}
     configfile = configparser.ConfigParser(interpolation=None)
-    configfile.read(automation.config_fpath)    
+    configfile.read(automation.config_fpath)
     config["TUTOR_NAME"] = configfile["DEFAULT"]["TUTOR_NAME"].strip().strip('"')
     config["EMAIL"] = configfile["DEFAULT"]["EMAIL"].strip().strip('"')
     config["PASS"] = configfile["DEFAULT"]["PASS"].strip().strip('"')
@@ -20,14 +19,12 @@ def load_config(automation: WebAutomation):
     config["MAX_SLEEP_S"] = float(configfile["DEFAULT"]["MAX_SLEEP_S"])
     config["RESPOND_MESSAGES"] = configfile.getboolean(
         "DEFAULT", "RESPOND_MESSAGES", fallback=False
-    )    
+    )
     automation.set_config(config)
-    
 
 
 def round_to_nearest_5(x: float):
     return round(x / 5.0) * 5.0
-
 
 
 def get_supported_currencies(logger: logging.Logger):
@@ -93,7 +90,6 @@ def update_exchange_rate(currency: str, config: dict, logger: logging.Logger):
     return 0
 
 
-
 #
 # TO DO: should wait for some element to appear after every url load, button click?
 #
@@ -130,8 +126,3 @@ def login(automation: WebAutomation):
     submit_btn.click()
     logger.debug("clicked login")
     click_delay()
-    
-    
-    
-    
-    

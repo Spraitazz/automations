@@ -1,4 +1,3 @@
-
 post1 = """6:17 AM. Empty office.
 The best ideas don’t happen during investor calls or Slack standups — they happen in the silence between commitments.
 
@@ -85,8 +84,4 @@ Better is always better than sooner.
 #teamwork #startupprocess #QAheroes #delayednotderailed"""
 
 
-
-
 POSTS_DIEDAI = [post1, post2, post3, post4, post5, post6, post7, post8, post9]
-
-

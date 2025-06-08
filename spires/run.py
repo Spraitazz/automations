@@ -45,16 +45,18 @@ def run(automation: WebAutomation):
     #
     supported_currencies = []
     num_tries_max = 3
-    retry_sleep_s = 10.
-    i_try = 0    
+    retry_sleep_s = 10.0
+    i_try = 0
     while i_try < num_tries_max:
         try:
             supported_currencies = get_supported_currencies(logger)
             break
         except requests.ConnectionError:
-            logger.warning(f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s")
+            logger.warning(
+                f"connection error on try {i_try}/{num_tries_max}, will retry in {retry_sleep_s} s"
+            )
             automation.sleep(retry_sleep_s)
-            i_try += 1       
+            i_try += 1
 
     if len(supported_currencies) == 0:
         logger.error("supported currencies were not retrieved, cannot bid")
@@ -87,7 +89,9 @@ def run(automation: WebAutomation):
                 logger.exception("")
 
         automation.driver_try_get(DEFAULT_URL)
-        sleep_s = random.uniform(automation.config["MIN_SLEEP_S"], automation.config["MAX_SLEEP_S"])
+        sleep_s = random.uniform(
+            automation.config["MIN_SLEEP_S"], automation.config["MAX_SLEEP_S"]
+        )
         logger.debug("returned home and going to sleep for {:.1f} s".format(sleep_s))
         automation.sleep(sleep_s)
         automation.driver_try_get(HOME_URL)

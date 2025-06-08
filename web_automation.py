@@ -53,9 +53,7 @@ def click_delay(min: float = CLICK_DELAY_MIN, max: float = CLICK_DELAY_MAX):
 def move_to_and_click(driver: ChromeDriver, elem: WebElement):
     ActionChains(driver).move_to_element(elem).pause(
         random.uniform(0.5, 1.5)
-    ).click().pause(
-        random.uniform(0.5, 1.5)
-    ).perform()
+    ).click().pause(random.uniform(0.5, 1.5)).perform()
 
 
 def deepest_div(element: WebElement):
@@ -66,6 +64,7 @@ def deepest_div(element: WebElement):
         return deepest_div(divs[0])
     else:
         return element
+
 
 #
 # TODO: own_xvfb_display -> use_xvfb_display
@@ -87,20 +86,21 @@ class WebAutomation(Automation):
         self.xvfb_display = xvfb_display
 
     #
-    # TODO: wrap in try/except - check for 
-    #       selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome; 
+    # TODO: wrap in try/except - check for
+    #       selenium.common.exceptions.NoSuchDriverException: Message: Unable to obtain driver for chrome;
     #       For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
     #
-    def init_webdriver(self, options: webdriver.ChromeOptions() = DEFAULT_BROWSER_OPTIONS) -> ChromeDriver:
+    def init_webdriver(
+        self, options: webdriver.ChromeOptions() = DEFAULT_BROWSER_OPTIONS
+    ) -> ChromeDriver:
         driver = webdriver.Chrome(options=options)
         self.driver = driver
         return driver
 
-
     def run(self):
         # Setup signal handlers for graceful shutdown
-        #signal.signal(signal.SIGINT, self.signal_handler)
-        #signal.signal(signal.SIGTERM, self.signal_handler)
+        # signal.signal(signal.SIGINT, self.signal_handler)
+        # signal.signal(signal.SIGTERM, self.signal_handler)
         self.run_func(self)
 
     def cleanup(self, controller_logger: logging.Logger):
@@ -114,39 +114,41 @@ class WebAutomation(Automation):
         finally:
             self.driver = None
             super().cleanup(controller_logger)
-      
-      
+
     def _run_and_cleanup(self, controller_logger: logging.Logger):
         """
         Currently in default browser options not running headless,
         so DISPLAY must be set, otherwise ChromeDriver wont work.
         """
-        
+
         DISPLAY_ENV = os.environ.get("DISPLAY", None)
         if DISPLAY_ENV is None:
             controller_logger.error("DISPLAY env var is not set")
         else:
             controller_logger.debug(f"DISPLAY={DISPLAY_ENV}")
-            
+
         self.run()
         controller_logger.debug(f"{self.name} stopped by return from run func")
         self.cleanup(controller_logger)
-            
-            
+
     def email_exception_handling_wrapper(self, controller_logger: logging.Logger):
         try:
             if self.own_xvfb_display:
-                with Xvfb(display=self.xvfb_display, width=XVFB_DISPLAY_WIDTH, height=XVFB_DISPLAY_HEIGHT) as xvfb:
+                with Xvfb(
+                    display=self.xvfb_display,
+                    width=XVFB_DISPLAY_WIDTH,
+                    height=XVFB_DISPLAY_HEIGHT,
+                ) as xvfb:
                     self._run_and_cleanup(controller_logger)
             else:
                 self._run_and_cleanup(controller_logger)
         except:
             controller_logger.exception("")
-            self._on_exception(controller_logger)   
+            self._on_exception(controller_logger)
 
     #
-    # TODO: (screenshots/error1.png) - exception not raised? Check if 
-    #       have driver_try_get() in try/except block? 
+    # TODO: (screenshots/error1.png) - exception not raised? Check if
+    #       have driver_try_get() in try/except block?
     #
     def driver_try_get(self, url: str):
 
@@ -175,7 +177,7 @@ class WebAutomation(Automation):
         Make two attempts to click, in the first instance removing any
         offending elements in the way, and then re-trying.
         """
-        
+
         try:
             elem.click()
             return True
@@ -225,7 +227,7 @@ class WebAutomation(Automation):
                 pass
 
             return False
-            
+
     def get_deepest_first_descendant(self, element: WebElement) -> WebElement:
         """
         Recursively follows the first child of the given WebElement
@@ -237,6 +239,3 @@ class WebAutomation(Automation):
         except:
             # No child found, this is the deepest element
             return element
-
-    
-      

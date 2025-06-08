@@ -31,12 +31,14 @@ GENERIC_BID_MSG_PLACEHOLDER = "Hi {},\n\nI would like to offer you my support as
 experience helping Physics, Mathematics and Programming students achieve their goals. I have two Masters' \
 degrees, one in theoretical physics and one in machine learning. Look forward to hearing from you!\n\n{}"
 
+
 @dataclass
 class StudentData:
     full_name: str
     name: str
     degree: str
     subject: str
+
 
 #
 # from below for messages

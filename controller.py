@@ -3,13 +3,12 @@ import socket
 from definitions import *
 from utils import init_default_logger
 from automation import Automation
-from web_automation import WebAutomation #, Xvfb
+from web_automation import WebAutomation
 
 from llm_server.definitions import LLM_SERVER_BASE_URL
 from llm_server.controller import start as start_llm_server
 from llm_server.controller import stop as stop_llm_server
 
-#from skelbiu.run import run as run_skelbiu
 from skelbiu.automation import SkelbiuAutomation
 from spires.run import run as run_spires
 from linkedin.run import run as run_linkedin
@@ -65,9 +64,9 @@ spires_automation = {
 }
 
 AUTOMATIONS = {
-"skelbiu": skelbiu_automation,
-"spires": spires_automation,
-"linkedin": linkedin_automation
+    "skelbiu": skelbiu_automation,
+    "spires": spires_automation,
+    "linkedin": linkedin_automation,
 }
 #
 # Define your automations above
@@ -105,17 +104,16 @@ def init_automation(automation_name: str, config_fpath: str) -> Automation:
         # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
         #
         automation.run_func = AUTOMATIONS[automation_name]["run_func"]
-        
+
     elif AUTOMATIONS[automation_name]["class"] == Automation:
         automation = AUTOMATIONS[automation_name]["class"](
-            name=automation_name,            
-            config_fpath=config_fpath
+            name=automation_name, config_fpath=config_fpath
         )
         #
         # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
         #
         automation.run_func = AUTOMATIONS[automation_name]["run_func"]
-        
+
     else:
         #
         # TODO: currently only skelbiu, refactor to all
@@ -128,9 +126,8 @@ def init_automation(automation_name: str, config_fpath: str) -> Automation:
         automation = AUTOMATIONS[automation_name]["class"](
             config_fpath=config_fpath,
             own_xvfb_display=own_xvfb_display,
-            xvfb_display=xvfb_display
+            xvfb_display=xvfb_display,
         )
-        
 
     return automation
 
@@ -241,7 +238,7 @@ def handle_client(conn: socket.socket):
 
             # currently only allow "start/stop llm_server" and "status/stop bot_name"
             if commands[0] == "start" and commands[1] == "llm_server":
-            
+
                 if llm_server_on:
                     respond_and_log(
                         f"llm server already running at url: {LLM_SERVER_BASE_URL}",
@@ -258,9 +255,9 @@ def handle_client(conn: socket.socket):
                 else:
                     logger.error("Could not start LLM server")
                     conn.sendall("LLM server did not start\n".encode())
-                    
+
             elif commands[0] == "stop" and commands[1] == "llm_server":
-            
+
                 if not llm_server_on:
                     respond_and_log("llm server not running", conn)
                     return
@@ -272,15 +269,15 @@ def handle_client(conn: socket.socket):
                 else:
                     logger.error("Could not stop LLM server")
                     conn.sendall("LLM server could not be stopped\n".encode())
-                    
-            elif commands[0] == "stop":            
+
+            elif commands[0] == "stop":
                 automation_name = commands[1]
                 stop_automation(automation_name, conn)
-                
-            elif commands[0] == "start":            
+
+            elif commands[0] == "start":
                 automation_name = commands[1]
                 start_automation(automation_name, conn)
-                
+
             else:
                 conn.sendall(f'Command "{data}" is not admissible\n'.encode())
 
@@ -302,7 +299,7 @@ def run_server():
                     f"config_fpath not specified for {name} in AUTOMATIONS at the top of this file"
                 )
                 continue
-            automation = init_automation(name, cfg["config_fpath"])            
+            automation = init_automation(name, cfg["config_fpath"])
             if automation is not None:
                 automation.start(logger)
                 automations_running[name] = automation

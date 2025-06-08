@@ -6,6 +6,7 @@ configs/
 notes/ 
 scripts/
 
+
 llm_server/prompt_info.csv
 llm_server/prompts/
 skelbiu/my_items.json
@@ -15,6 +16,7 @@ githubignore
 deployignore
 python_template.gitignore
 conda_env_github.yml
+conda_env_github_withllm.yml
 
 
 

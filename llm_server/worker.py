@@ -1,11 +1,10 @@
-
 from llm_server.definitions import *
 from llm_server.utils import generate_until_hit
 
 
 def save_job_result(job: JobRequest, result: dict) -> int:
     """Save job and result to database, returning row index
-    of the new row."""    
+    of the new row."""
 
     df = None
     if pd.io.common.file_exists(PROMPT_STORE_FPATH):
@@ -26,19 +25,19 @@ def save_job_result(job: JobRequest, result: dict) -> int:
         "date": str(datetime.now()),
         "extra": "-",
     }
-    new_row = pd.DataFrame([job_info])  
+    new_row = pd.DataFrame([job_info])
     new_index = df.index.max() + 1 if not df.empty else 0
     new_row.index = [new_index]
     df = pd.concat([df, new_row], ignore_index=False)
     df.to_csv(PROMPT_STORE_FPATH)
-    
+
     with open(f"{PROMPT_DIR}/prompt{new_index:05d}", "w") as file:
         file.write(job.prompt)
 
     if result["num_tries"] != -1:
         with open(f"{PROMPT_DIR}/resp{new_index:05d}", "w") as file:
             file.write(result["response"])
-            
+
     return new_index
 
 
@@ -53,7 +52,7 @@ def process_llm_job(job: JobRequest, llm: llama_cpp.Llama, logger: logging.Logge
     logger.debug(f"Processing job (id = {job.job_id}).")
 
     llm_call_lambda = lambda prompt: llm(
-        prompt,        
+        prompt,
         max_tokens=job.llm_params.max_tokens,
         temperature=job.llm_params.temperature,
         top_k=job.llm_params.top_k,
@@ -61,7 +60,9 @@ def process_llm_job(job: JobRequest, llm: llama_cpp.Llama, logger: logging.Logge
         repeat_penalty=job.llm_params.repeat_penalty,
     )
 
-    resp, num_tries = generate_until_hit(job.prompt, llm_call_lambda, num_tries_max=job.num_tries_max)
+    resp, num_tries = generate_until_hit(
+        job.prompt, llm_call_lambda, num_tries_max=job.num_tries_max
+    )
 
     result = {}
     if num_tries == -1:
@@ -71,9 +72,7 @@ def process_llm_job(job: JobRequest, llm: llama_cpp.Llama, logger: logging.Logge
         result["status"] = JobResultStatus.FAILED
         result["num_tries"] = NUM_MAX_TRIES_GENERATE_DEFAULT
     else:
-        logger.debug(
-            f"Job (id = {job.job_id}) completed successfully"
-        )  
+        logger.debug(f"Job (id = {job.job_id}) completed successfully")
         result["status"] = JobResultStatus.SUCCESS
         result["num_tries"] = num_tries
         result["response"] = resp
@@ -100,14 +99,13 @@ def worker(llm: llama_cpp.Llama, logger: logging.Logger, stop_event: threading.E
     while not stop_event.is_set():
         job = None
         if job_queue:
-            job = job_queue.popleft()   
-            process_llm_job(job, llm, logger)         
+            job = job_queue.popleft()
+            process_llm_job(job, llm, logger)
         else:
             time.sleep(0.1)
             continue
-        
+
     logger.debug("LLM worker stopped by stop event, closing logger")
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
         handler.close()
-

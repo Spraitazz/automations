@@ -1,78 +1,73 @@
-
-
 import pytest
-#import time
+
+# import time
 from skelbiu.login_page import LoginPage
+
 
 class TestLoginFunctionality:
     """Test cases for login functionality using TDD approach"""
-    
+
     def test_navigate_to_login_page(self, driver):
         """Test 1: Verify navigation to login page"""
         # Arrange
         login_page = LoginPage(driver)
-        
+
         # Act
         login_page.navigate_to_login()
-        
+
         # Assert
         assert "signin" in driver.current_url.lower()
         assert driver.title  # Page should have a title
-    
+
     def test_login_page_elements_present(self, driver):
         """Test 2: Verify all login page elements are present"""
         # Arrange
         login_page = LoginPage(driver)
         login_page.navigate_to_login()
-        
+
         # Act
         email_field = driver.find_element(*login_page.USERNAME_INPUT)
         password_field = driver.find_element(*login_page.PASSWORD_INPUT)
         login_button = driver.find_element(*login_page.LOGIN_BUTTON)
-        
+
         # Assert
         assert email_field.is_displayed()
         assert password_field.is_displayed()
         assert login_button.is_displayed()
-    
+
     def test_valid_login_success(self, driver, test_credentials):
         """Test 3: Verify successful login with valid credentials"""
         # Arrange
         login_page = LoginPage(driver)
         login_page.navigate_to_login()
-        
+
         # Act
         login_success = login_page.login(
-            test_credentials["valid_email"],
-            test_credentials["valid_password"]
+            test_credentials["valid_email"], test_credentials["valid_password"]
         )
-        
+
         # Assert
         assert login_success is True
         assert login_page.is_login_successful()
 
-    
     def test_invalid_credentials_login_failure(self, driver, test_credentials):
         """Test 4: Verify login failure with invalid email"""
         # Arrange
         login_page = LoginPage(driver)
         login_page.navigate_to_login()
-        
+
         # Act
         login_success = login_page.login(
-            test_credentials["invalid_email"],
-            test_credentials["invalid_password"]
+            test_credentials["invalid_email"], test_credentials["invalid_password"]
         )
-        
+
         # Assert
         assert not login_success is True
         assert not login_page.is_login_successful()
         error_message = login_page.get_error_message()
         assert error_message is not None
         assert "neteisingi prisijungimo duomenys" in error_message.lower()
-    
-   
-    
+
     '''
     @pytest.mark.parametrize("email,password,expected_result", [
         ("", "", False),
@@ -93,6 +88,7 @@ class TestLoginFunctionality:
         # Assert
         assert login_page.is_login_successful() == expected_result
     '''
+
 
 """
 @pytest.mark.real

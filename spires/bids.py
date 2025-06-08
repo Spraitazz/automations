@@ -1,7 +1,5 @@
-
 from spires.definitions import *
 from spires.utils import click_delay, round_to_nearest_5, update_exchange_rate
-
 
 
 def bid_jobs(automation: WebAutomation, supported_currencies: list[str]):
@@ -10,7 +8,7 @@ def bid_jobs(automation: WebAutomation, supported_currencies: list[str]):
     convert MY_CURRENCY to student currency to correctly bid as in MY_BIDS
     apply with prepared generic bid message
     """
-    
+
     logger = automation.logger
     config = automation.config
     driver = automation.driver

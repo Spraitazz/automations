@@ -24,7 +24,7 @@ from definitions import LLM_SERVER_PORT
 # DO NOT DELETE ME
 BASE_DIR = Path(__file__).resolve().parent
 
-#LLM_CONFIG_PATH = Path.home() / "automation_configs" / "llm_server" / "config.ini"
+# LLM_CONFIG_PATH = Path.home() / "automation_configs" / "llm_server" / "config.ini"
 
 LOGGER_NAME = "llm_server"
 
@@ -35,7 +35,7 @@ NUM_THREADS_LLM = 8
 CONTEXT_LEN_LLM = 4096
 
 LLM_SERVER_HOST = "0.0.0.0"
-# 
+#
 # TODO: move to controller.py as only used there?
 #
 LLM_SERVER_BASE_URL = f"{LLM_SERVER_HOST}:{LLM_SERVER_PORT}"
@@ -56,7 +56,7 @@ NUM_JOBS_MAX = 3
 #
 NUM_MAX_TRIES_GENERATE_DEFAULT = 1
 
-#https://tokencounter.org/
+# https://tokencounter.org/
 NUM_CHARACTERS_PER_TOKEN = 4
 
 NUM_TOKENS_PROMPT_MAX = CONTEXT_LEN_LLM
@@ -89,7 +89,7 @@ job_queue = deque()
 job_states = {}  # {str uuid: JobStates}
 job_history = {}  # {str uuid: JobRequest}
 # {str uuid: dict(['status'] = JobResultStatus, ["num_tries"]: int, ["response"]: str)}
-job_results = {} 
+job_results = {}
 
 
 class LLMParams(BaseModel):
@@ -124,7 +124,7 @@ class JobSubmitStatus(IntEnum):
 class JobResultStatus(IntEnum):
     SUCCESS = 0
     FAILED = -1
-   
+
 
 class ServerThread(threading.Thread):
     def __init__(self, config: uvicorn.Config):
@@ -137,22 +137,21 @@ class ServerThread(threading.Thread):
 
     def shutdown(self):
         self.server.should_exit = True
-        
-        
+
+
 class StoppableThread:
     def __init__(self, target: callable = lambda: None, args=(), daemon=True):
         self._stop_event = threading.Event()
         args_with_stopevent = list(args)
         args_with_stopevent.append(self._stop_event)
         args_with_stopevent = tuple(args_with_stopevent)
-        self._thread = threading.Thread(target=target, args=args_with_stopevent, daemon=daemon)
+        self._thread = threading.Thread(
+            target=target, args=args_with_stopevent, daemon=daemon
+        )
 
     def start(self):
         self._thread.start()
 
     def stop(self):
         self._stop_event.set()
-        #self._thread.join()
-    
-
-    
+        # self._thread.join()

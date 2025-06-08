@@ -1,4 +1,3 @@
-
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -23,6 +22,7 @@ def driver_config():
     """Configure Chrome driver options"""
     return DEFAULT_BROWSER_OPTIONS
 
+
 @pytest.fixture(scope="function")
 def driver(driver_config):
     """Create and teardown WebDriver instance for each test"""
@@ -34,6 +34,7 @@ def driver(driver_config):
     yield driver
     driver.quit()
 
+
 @pytest.fixture
 def test_credentials():
     """Test credentials - replace with your actual test data"""
@@ -41,7 +42,7 @@ def test_credentials():
         "valid_email": config["EMAIL"],
         "valid_password": config["PASS"],
         "invalid_email": "spraitass@gmail.com",
-        "invalid_password": "fs!4%ekski7r"
+        "invalid_password": "fs!4%ekski7r",
     }
 
 
@@ -64,7 +65,3 @@ def mock_driver(request):
     
     return mock
 """
-
-
-
-

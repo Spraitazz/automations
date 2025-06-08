@@ -111,12 +111,3 @@ PROMPT_BASE = 'You are an aspiring fraudster hiding under the mask of an intelli
  POST: {}\n\
  RESPONSE: '
 """
-
-
-
-
-
-
-
-
-

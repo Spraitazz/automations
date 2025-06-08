@@ -1,4 +1,3 @@
-
 from definitions import *
 
 
@@ -13,9 +12,9 @@ def init_default_logger(name: str) -> typing.Tuple[logging.Logger, Path]:
 
     logger = logging.getLogger(name)
     logs_dir_path = LOGS_DIR_PATH / name
-    logs_dir_path.mkdir(parents=True, exist_ok=True)      
+    logs_dir_path.mkdir(parents=True, exist_ok=True)
 
-    log_path = os.path.join(logs_dir_path, "log")    
+    log_path = os.path.join(logs_dir_path, "log")
     logger.setLevel(LOG_LEVEL_DEFAULT)
     handler = TimedRotatingFileHandler(
         log_path, when="midnight", backupCount=LOG_NUM_DAYS_BACKUP_DEFAULT
@@ -24,5 +23,5 @@ def init_default_logger(name: str) -> typing.Tuple[logging.Logger, Path]:
     handler.setLevel(LOG_LEVEL_DEFAULT)
     handler.setFormatter(LOG_FORMATTER_DEFAULT)
     logger.addHandler(handler)
-    
+
     return logger, logs_dir_path

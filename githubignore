@@ -5,13 +5,18 @@ notes/
 scripts/
 
 skelbiu/my_items.json
+skelbiu/pytest.ini
+skelbiu/conftest.py
+skelbiu/test_login.py
 spires/
+llm_server/
 linkedin/
 
 githubignore
 deployignore
 python_template.gitignore
 conda_env_deploy.yml
+conda_env_github_withllm.yml
 
 
 #

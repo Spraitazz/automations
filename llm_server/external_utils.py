@@ -1,15 +1,17 @@
-
 from definitions import LLM_API_SUBMIT_URL, LLM_API_RESULT_URL
 from llm_server.definitions import *
+
 
 class LLMRequestResultStatus(IntEnum):
     OK = 0
     NOTOK = -2
 
+
 class LLMRequestResult(BaseModel):
     status: LLMRequestResultStatus
     response: str
     num_tries: int
+
 
 #
 # TO DO: need to add check that llm_params is LLMParams instance, then model_dump()
@@ -27,13 +29,17 @@ def llm_request(
     result_request_retry_time_s: float = 10.0,
 ) -> LLMRequestResult:
     """Make call to LLM server with given {prompt} and {llm_params}, first submitting on
-    the /submit endpoint and afterwards calling the /result endpoint every 
+    the /submit endpoint and afterwards calling the /result endpoint every
     {result_request_retry_time_s}, waiting for up to {max_wait_s} (if > 0, currently
     not implemented) for response."""
-    
 
     job_id = str(uuid.uuid4())
-    payload = {"prompt": prompt, "job_id": job_id, "llm_params": llm_params.model_dump(), "num_tries_max": num_tries_max}
+    payload = {
+        "prompt": prompt,
+        "job_id": job_id,
+        "llm_params": llm_params.model_dump(),
+        "num_tries_max": num_tries_max,
+    }
 
     try:
         response = requests.post(LLM_API_SUBMIT_URL, json=payload)
@@ -43,7 +49,9 @@ def llm_request(
             logger.warning(
                 f"LLM job request failed, response status code: {response.status_code}"
             )
-            return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+            return LLMRequestResult(
+                status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+            )
         else:
             json = response.json()
 
@@ -53,10 +61,10 @@ def llm_request(
                         f'LLM job request declined, status message: {json["status_msg"]}'
                     )
                 else:
-                    logger.error(
-                        f'LLM job request failed, errors: {json["errors"]}'
-                    )
-                return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+                    logger.error(f'LLM job request failed, errors: {json["errors"]}')
+                return LLMRequestResult(
+                    status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+                )
 
             if json["status"] == JobSubmitStatus.SUCCESS:
                 logger.debug(
@@ -67,7 +75,9 @@ def llm_request(
         # MOST LIKELY LLM SERVER OFF?
         #
         logger.exception("llm server likely is off")
-        return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+        return LLMRequestResult(
+            status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+        )
 
     result_json = None
     while True:
@@ -79,7 +89,9 @@ def llm_request(
             # MOST LIKELY LLM SERVER OFF?
             #
             logger.exception("llm server likely is off")
-            return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+            return LLMRequestResult(
+                status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+            )
 
         if response.status_code == 200:
             json = response.json()
@@ -89,7 +101,9 @@ def llm_request(
                 logger.warning(
                     f"LLM with id {job_id} not found. Possibly LLM server restarted."
                 )
-                return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+                return LLMRequestResult(
+                    status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+                )
 
             if json["status"] == JobStates.DONE:
                 break
@@ -105,13 +119,15 @@ def llm_request(
             logger.warning(
                 f"Request failed, response status code: {response.status_code}"
             )
-            return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+            return LLMRequestResult(
+                status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+            )
 
         time.sleep(result_request_retry_time_s)
 
     result = result_json["result"]
     num_tries = result["num_tries"]
-    
+
     #
     # TO DO: this info can be passed more clearly in reqresstatus for calling function to act on
     #
@@ -119,7 +135,12 @@ def llm_request(
         logger.warning(
             f"llm failed to generate in {num_tries} tries for prompt:\n{prompt}"
         )
-        return LLMRequestResult(status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1)
+        return LLMRequestResult(
+            status=LLMRequestResultStatus.NOTOK, response="", num_tries=-1
+        )
 
-    return LLMRequestResult(status=LLMRequestResultStatus.OK, response=result["response"], num_tries=num_tries)
-
+    return LLMRequestResult(
+        status=LLMRequestResultStatus.OK,
+        response=result["response"],
+        num_tries=num_tries,
+    )

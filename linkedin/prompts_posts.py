@@ -27,7 +27,6 @@ Natural language models often generate non-deterministic outputs. If I give a pr
 """
 
 
-
 trash_post2 = """
 LinkedIn is flooded with terrible job search advice for engineers.
 
@@ -59,7 +58,6 @@ Want to get 3-5 technical interviews every week?
 
 Comment "PLAYBOOK" below and I will send you my Senior Job Search Playbook.
 """
-
 
 
 trash_post3 = """
@@ -96,7 +94,6 @@ I built a guide and linked it in the comments.
 """
 
 
-
 trash_post4 = """
 Feels like there are 5 camps of people. 👇🏼
 
@@ -113,7 +110,6 @@ Feels like there are 5 camps of people. 👇🏼
 Where do you land and why?
 Can you guess where I’m at currently? See ya in the comments!
 """
-
 
 
 trash_post5 = """
@@ -150,7 +146,6 @@ What’s one idea that changed the way you see the world?
 """
 
 
-
 trash_post6 = """
 I used to think AI-first startups were distorting economic productivity metrics.
 Until I saw OnlyFans’ numbers.
@@ -176,7 +171,11 @@ P.S. Which metric do you think actually shows that AI is changing the way compan
 """
 
 
-
-POSTS_TRASH = [trash_post1, trash_post2, trash_post3, trash_post4, trash_post5, trash_post6]
-
-
+POSTS_TRASH = [
+    trash_post1,
+    trash_post2,
+    trash_post3,
+    trash_post4,
+    trash_post5,
+    trash_post6,
+]
