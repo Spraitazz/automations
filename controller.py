@@ -2,16 +2,9 @@ import socket
 
 from definitions import *
 from utils import init_default_logger
-from automation import Automation
 from web_automation import WebAutomation
 
-from llm_server.definitions import LLM_SERVER_BASE_URL
-from llm_server.controller import start as start_llm_server
-from llm_server.controller import stop as stop_llm_server
-
 from skelbiu.automation import SkelbiuAutomation
-from spires.run import run as run_spires
-from linkedin.run import run as run_linkedin
 
 #
 # See example config file provided in configs/skelbiu_example.ini
@@ -34,20 +27,10 @@ if SOCKET_PATH is None:
 logger, _ = init_default_logger("controller")
 automations_running = {}
 xvfb_display_counter = 30
-llm_server_on = False
-
 
 #
 # Define your automations below
 #
-linkedin_automation = {
-    "class": WebAutomation,
-    "run_func": run_linkedin,
-    "config_fpath": Path.home() / "automation_configs" / "linkedin" / "config.ini",
-    "own_xvfb_display": True,
-    "run_on_startup": False,
-}
-
 skelbiu_automation = {
     "class": SkelbiuAutomation,
     "config_fpath": Path.home() / "automation_configs" / "skelbiu" / "config.ini",
@@ -55,22 +38,9 @@ skelbiu_automation = {
     "run_on_startup": False,
 }
 
-spires_automation = {
-    "class": WebAutomation,
-    "run_func": run_spires,
-    "config_fpath": Path.home() / "automation_configs" / "spires" / "config.ini",
-    "own_xvfb_display": True,
-    "run_on_startup": False,
-}
-
 AUTOMATIONS = {
-    "skelbiu": skelbiu_automation,
-    "spires": spires_automation,
-    "linkedin": linkedin_automation,
+    "skelbiu": skelbiu_automation    
 }
-#
-# Define your automations above
-#
 
 
 def respond_and_log(msg: str, conn: socket.socket):
@@ -78,7 +48,7 @@ def respond_and_log(msg: str, conn: socket.socket):
     conn.sendall(f"{msg}\n".encode())
 
 
-def init_automation(automation_name: str, config_fpath: str) -> Automation:
+def init_automation(automation_name: str, config_fpath: str) -> WebAutomation:
     """Initialise the automation instance, returning a reference to the instance."""
 
     global xvfb_display_counter
@@ -87,48 +57,16 @@ def init_automation(automation_name: str, config_fpath: str) -> Automation:
         logger.warning(f"config file {config_fpath} not found")
         return None
 
-    automation = None
-    if AUTOMATIONS[automation_name]["class"] == WebAutomation:
-        xvfb_display = -1
-        own_xvfb_display = AUTOMATIONS[automation_name].get("own_xvfb_display", False)
-        if own_xvfb_display:
-            xvfb_display = xvfb_display_counter
-            xvfb_display_counter = xvfb_display_counter + 1
-        automation = AUTOMATIONS[automation_name]["class"](
-            name=automation_name,
-            config_fpath=config_fpath,
-            own_xvfb_display=own_xvfb_display,
-            xvfb_display=xvfb_display,
-        )
-        #
-        # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
-        #
-        automation.run_func = AUTOMATIONS[automation_name]["run_func"]
-
-    elif AUTOMATIONS[automation_name]["class"] == Automation:
-        automation = AUTOMATIONS[automation_name]["class"](
-            name=automation_name, config_fpath=config_fpath
-        )
-        #
-        # TODO: delete me. Temporary fix while refactoring to objects extending WebAutomation
-        #
-        automation.run_func = AUTOMATIONS[automation_name]["run_func"]
-
-    else:
-        #
-        # TODO: currently only skelbiu, refactor to all
-        #
-        xvfb_display = -1
-        own_xvfb_display = AUTOMATIONS[automation_name].get("own_xvfb_display", False)
-        if own_xvfb_display:
-            xvfb_display = xvfb_display_counter
-            xvfb_display_counter = xvfb_display_counter + 1
-        automation = AUTOMATIONS[automation_name]["class"](
-            config_fpath=config_fpath,
-            own_xvfb_display=own_xvfb_display,
-            xvfb_display=xvfb_display,
-        )
-
+    xvfb_display = -1
+    own_xvfb_display = AUTOMATIONS[automation_name].get("own_xvfb_display", False)
+    if own_xvfb_display:
+        xvfb_display = xvfb_display_counter
+        xvfb_display_counter = xvfb_display_counter + 1
+    automation = AUTOMATIONS[automation_name]["class"](
+        config_fpath=config_fpath,
+        own_xvfb_display=own_xvfb_display,
+        xvfb_display=xvfb_display,
+    )
     return automation
 
 
@@ -207,8 +145,6 @@ def handle_client(conn: socket.socket):
     The admissible messages are one of the following:
 
     automations list
-    automations start llm_server
-    automations stop llm_server
     automations start {automation_name}
     automations stop {automation_name}
     """
@@ -234,43 +170,9 @@ def handle_client(conn: socket.socket):
                 conn.sendall(f'Command "{data}" is not admissible\n'.encode())
                 return
 
-        elif len(commands) == 2:
+        elif len(commands) == 2:           
 
-            # currently only allow "start/stop llm_server" and "status/stop bot_name"
-            if commands[0] == "start" and commands[1] == "llm_server":
-
-                if llm_server_on:
-                    respond_and_log(
-                        f"llm server already running at url: {LLM_SERVER_BASE_URL}",
-                        conn,
-                    )
-                    return
-
-                started_ok = start_llm_server(logger)
-                if started_ok:
-                    llm_server_on = True
-                    respond_and_log(
-                        f"llm server started url: {LLM_SERVER_BASE_URL}", conn
-                    )
-                else:
-                    logger.error("Could not start LLM server")
-                    conn.sendall("LLM server did not start\n".encode())
-
-            elif commands[0] == "stop" and commands[1] == "llm_server":
-
-                if not llm_server_on:
-                    respond_and_log("llm server not running", conn)
-                    return
-
-                stopped_ok = stop_llm_server(logger)
-                if stopped_ok:
-                    llm_server_on = False
-                    respond_and_log(f"llm server stopped", conn)
-                else:
-                    logger.error("Could not stop LLM server")
-                    conn.sendall("LLM server could not be stopped\n".encode())
-
-            elif commands[0] == "stop":
+            if commands[0] == "stop":
                 automation_name = commands[1]
                 stop_automation(automation_name, conn)
 

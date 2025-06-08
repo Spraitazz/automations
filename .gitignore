@@ -1,9 +1,28 @@
 
-
-llm_server/llm_ggufs/
-
 **/logs/**
 **/screenshots/**
+notes/ 
+scripts/
+
+skelbiu/my_items.json
+skelbiu/pytest.ini
+skelbiu/conftest.py
+skelbiu/test_login.py
+spires/
+llm_server/
+linkedin/
+
+githubignore
+deployignore
+python_template.gitignore
+conda_env_deploy.yml
+conda_env_github_withllm.yml
+
+
+#
+#From now on: Python.gitignore template from GitHub
+#https://github.com/github/gitignore/blob/main/Python.gitignore
+#
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

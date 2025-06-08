@@ -18,7 +18,7 @@ from xvfbwrapper import Xvfb
 from automation import *
 
 
-DEFAULT_URL = "http://diedai.lt"
+DEFAULT_URL = "about:blank"
 
 # set default browser options
 DEFAULT_BROWSER_OPTIONS = webdriver.ChromeOptions()

@@ -1,3 +1,0 @@
-The metaphor of the parameters file as a "ZIP file of the entire internet" is intriguing yet oversimplified. A more accurate description would emphasize that these files contain an enormous amount of trainable weights and biases, representing the model's learned features from vast datasets rather than a literal compression of the web.
-
-The run.c file indeed serves as a critical component, encapsulating both training routines and inference mechanisms. It’s important to note that while C is commonly used due to its efficiency in memory management, alternative languages

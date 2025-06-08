@@ -1,9 +1,0 @@
-<think>
-
-</think>
-
-Just finished debugging a race condition in our real-time alert system — one of those bugs that hides for weeks before finally biting you during QA.
-
-It reminded me: the most elegant code is still just plumbing. What matters isn’t how clean your stack looks, but whether it actually helps someone when they need help最。
-
-#systemdesign #debuggingisarttoo #startuplife

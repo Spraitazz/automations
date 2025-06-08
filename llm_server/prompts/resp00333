@@ -1,4 +1,0 @@
-<think>
-Okay, the user wants me to write a comment on a LinkedIn post about moving logic from Python to C++ in their ingestion pipeline. Let me start by understanding the original post. The company is testing optimizations in their ingestion pipeline, moving parts from Python to C++. They've been testing backward compatibility and are now testing on large pipelines (>2GB/s) to see the performance boost. The benefits mentioned are less time, less CPU, less money, and faster service.
-
-So, the comment
