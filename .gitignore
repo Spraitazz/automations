@@ -1,6 +1,7 @@
 automations/skelbiu/my_items.json
 logs/
 tests/
+**/screenshots/**
 
 .idea/
 
