@@ -1,0 +1,11 @@
+[project]
+name = "automations"
+version = "0.1.0"
+description = "Persistent python automations, focusing on Selenium web automations"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "selenium>=4.36.0",
+    "xvfbwrapper>=0.2.14",
+]
+
