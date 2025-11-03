@@ -4,9 +4,16 @@ The communication server awaits for messages on the socket
 
 On receiving messages, in a thread it relays them to the controller,
 awaiting for and returning the response.
+
+The admissible messages are one of the following:
+
+automations list
+automations start {automation_name}
+automations stop {automation_name}
 """
 
 import os
+import queue
 import socket
 import threading
 
@@ -15,6 +22,9 @@ from core.controller import Controller
 
 
 class CommunicationServer:
+
+    admissible_commands = ["start", "stop"]
+
     def __init__(self, automation_controller: Controller):
         socket_path = os.environ.get("AUTOMATIONS_SOCKET_PATH", None)
 
@@ -56,16 +66,16 @@ class CommunicationServer:
     def handle_client(self, conn: socket.socket):
         """
         Act on admissible messages received from the socket client.
-
-        The admissible messages are one of the following:
-
-        automations list
-        automations start {automation_name}
-        automations stop {automation_name}
         """
-        admissible_commands = ["start", "stop"]
 
         with conn:
+            # Spawn a thread to monitor the queue for stop notifications
+            threading.Thread(
+                target=self._send_notifications,
+                args=(conn,),
+                daemon=True,
+            ).start()
+
             data = conn.recv(1024).decode().strip()
             self.logger.debug(f"[controller received]: {data}")
             commands = data.split(" ")
@@ -80,7 +90,7 @@ class CommunicationServer:
             elif len(commands) == 2:
                 command = commands[0]
 
-                if command not in admissible_commands:
+                if command not in self.admissible_commands:
                     conn.sendall(f'Command "{data}" is not admissible\n'.encode())
                     return
 
@@ -97,6 +107,16 @@ class CommunicationServer:
 
                 conn.sendall(response.encode())
 
-    def respond_and_log(self, msg: str, conn: socket.socket):
-        self.logger.debug(f"[response]: {msg}")
-        conn.sendall(f"{msg}\n".encode())
+    def _send_notifications(self, conn: socket.socket):
+        """
+        Continuously send messages from the shared queue to the client.
+        """
+        while True:
+            try:
+                msg = self.automation_controller.message_queue.get(timeout=1.0)
+                conn.sendall(msg.encode())
+            except queue.Empty:
+                # No new messages — continue checking
+                continue
+            except (BrokenPipeError, ConnectionResetError):
+                break

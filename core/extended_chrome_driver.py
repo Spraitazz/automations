@@ -42,6 +42,10 @@ class ExtendedChromeDriver(webdriver.Chrome):
         self.wait = WebDriverWait(super(), self.DEFAULT_LOAD_WAIT_TIME_S)
 
     def get(self, url: str):
+
+        if url == self.current_url:
+            return
+
         num_tries_max = 3
         retry_sleep_s = 10.0
 
@@ -57,8 +61,7 @@ class ExtendedChromeDriver(webdriver.Chrome):
         self.logger.error(exc_fstr)
         raise Exception(exc_fstr)
 
-    # TODO: on some sites might have multiple offenders - try up to Nmax
-    #  times
+    # TODO: on some sites might have multiple offenders - try up to Nmax times
     def click(self, elem: WebElement, second_try=False):
         """
         Make two attempts to click, in the first instance removing any

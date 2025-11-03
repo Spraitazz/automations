@@ -28,12 +28,15 @@ class SeleniumAutomation(Automation, ABC):
         self.config_path = config_path
 
     def setup(self, logger: logging.Logger):
-        """
-        Initialise webdriver.
-        """
         self.logger = logger
-        self.driver = ExtendedChromeDriver(self.sleep, self.logger)
+        self.setup_driver()
         self.logger.info("Automation set up")
+
+    def setup_driver(self):
+        """
+        Set up the webdriver.
+        """
+        self.driver = ExtendedChromeDriver(self.sleep, self.logger)
 
     def on_exception(self):
         """
@@ -58,8 +61,11 @@ class SeleniumAutomation(Automation, ABC):
         return filepath
 
     def cleanup(self):
+        self.cleanup_driver()
+
+    def cleanup_driver(self):
         """
-        Cleanup my webdriver
+        Cleanup my webdriver.
         """
         try:
             self.driver.quit()

@@ -1,5 +1,6 @@
 import threading
 import time
+from queue import Queue
 
 from core.automation_runner import AutomationRunner
 from config.controller import CONFIG_PATH, AUTOMATIONS
@@ -16,6 +17,8 @@ class Controller:
         logger, logs_dir = init_default_logger("controller")
         logger.info("automations controller started")
         self.logger = logger
+
+        self.message_queue = Queue()
 
         self.xvfb_display_counter_lock = threading.Lock()
         self.xvfb_display_counter = 30
@@ -110,11 +113,15 @@ class Controller:
             del self.automation_runners[automation_name]
             del automation_runner
 
+            # Notify the communication server through the shared queue
+            msg = f"Automation [{automation_name}] stopped gracefully\n"
+            self.message_queue.put(msg)
+
         self.automation_runners[automation_name].stop()
 
         threading.Thread(
             target=wait_for_stopped,
-            args=(automation_name,),
+            args=(),
             daemon=True,
         ).start()
 

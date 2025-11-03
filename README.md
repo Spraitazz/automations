@@ -1,8 +1,8 @@
 # automations
 
 A tool for running persistent python automations with email exception 
-handling and logging included. It is for linux only due 
-to relying on systemd.service and Xvfb.
+handling and logging included. It is linux only due 
+to relying on systemd.service and X virtual framebuffer.
 
 ---------------
 
@@ -10,14 +10,13 @@ to relying on systemd.service and Xvfb.
 
 What the tool does:
 
-1. Persistently runs automation, wrapping its run() method in a try/catch 
-with email and restart handling for exceptions not handled by the automation.
+1. Persistently runs automation, with email and restart handling for exceptions 
+not handled by the automation.
 
-2. Deals with logs, allows control of automations through terminal.
+2. Takes care of logging, control of automations through terminal (socket file).
 
-The user ideally only modifies the files under config to specify 
-their configuration, linking their automation in config/controller.py.
-
+The user only needs to modify the files under config to specify 
+their configuration, linking their automation in config/controller.py. 
 After setup, a systemd user service "automations" is created. It starts 
 a socket server on which the user communicates with the automation 
 controller through the terminal.
